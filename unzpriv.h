@@ -678,6 +678,9 @@
 
 #define UNZIP_BZ2VERS   46
 #ifdef ZIP64_SUPPORT
+# ifndef LARGE_FILE_SUPPORT
+#  define LARGE_FILE_SUPPORT
+# endif
 # ifdef USE_BZIP2
 #  define UNZIP_VERSION   UNZIP_BZ2VERS
 # else
@@ -2031,6 +2034,7 @@ typedef struct min_info {
 #ifdef UNICODE_SUPPORT
     unsigned GPFIsUTF8: 1;   /* crec gen_purpose_flag UTF-8 bit 11 is set */
 #endif
+    unsigned zip64: 1;       /* true if entry has Zip64 extra block */
 #ifndef SFX
     char Far *cfilname;      /* central header version of filename */
 #endif

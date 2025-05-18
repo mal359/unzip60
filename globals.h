@@ -236,6 +236,7 @@ typedef struct Globals {
     uch       *inbuf;               /* input buffer (any size is OK) */
     uch       *inptr;               /* pointer into input buffer */
     int       incnt;
+    int       disk_full;
 
 #ifndef FUNZIP
     ulg       bitbuf;
@@ -260,13 +261,10 @@ typedef struct Globals {
     ecdir_rec       ecrec;         /* used in unzip.c, extract.c */
     z_stat   statbuf;              /* used by main, mapname, check_for_newer */
 
-    int zip64;                     /* true if Zip64 info in extra field */
-
     int      mem_mode;
     uch      *outbufptr;           /* extract.c static */
     ulg      outsize;              /* extract.c static */
     int      reported_backslash;   /* extract.c static */
-    int      disk_full;
     int      newfile;
     void     **cover;              /* used in extract.c for bomb detection */
 

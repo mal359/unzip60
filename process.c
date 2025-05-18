@@ -1932,8 +1932,6 @@ int getZip64Data(__G__ ef_buf, ef_len)
 #define Z64FLGS 0xffff
 #define Z64FLGL 0xffffffff
 
-    G.zip64 = FALSE;
-
     if (ef_len == 0 || ef_buf == NULL)
         return PK_COOL;
 
@@ -2111,7 +2109,7 @@ int getUnicodeData(__G__ ef_buf, ef_len)
             G.unipath_filename[ULen] = '\0';
           }
 
-          G.zip64 = TRUE;
+          G.pInfo->zip64 = TRUE;
         }
 
         /* Skip this extra field block */
