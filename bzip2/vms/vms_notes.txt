@@ -1,6 +1,6 @@
-                                                08 June 2022.  SMS.
+                                                2023-09-19.  SMS.
 
-                      BZIP2 1.0.8c Changes for VMS
+                      BZIP2 1.0.8d Changes for VMS
                       ============================
 
 ------------------------------------------------------------------------
@@ -24,14 +24,17 @@ work, but many have not been tested.
 
    Built and tested (slightly) in these environments:
 
- * OpenVMS Alpha V8.4-2L1 (VSI), VSI C V7.4-002.
+      Alpha objects and executables (built on VMS V8.4-2L1 with VSI C
+      V7.4-002).
 
-   OpenVMS IA64 V8.4-2L3 (VSI), VSI C V7.4-001.  (See "Compiler Note"
-below.)
+      IA64 objects and executables (built on VMS V8.4-2L3 with VSI C
+      V7.4-001).
 
- * OpenVMS VAX V7.3, Compaq C V6.4-005.
+      VAX objects and executables (built on VMS V7.3 with Compaq C
+      V6.4-005).
 
-(* = used to build objects/executables included in the full kit.)
+      x86_64 objects and executables (built on VMS x86_64 V9.2-1 with
+      VSI C X7.4-785 (GEM 50X65)).
 
 ------------------------------------------------------------------------
 
@@ -45,10 +48,18 @@ https://sourceware.org/bzip2/
       News
       ----
 
+   Version 1.0.8d  2023-09-19
+   --------------------------
+
+- Built executables for x86_64 in the complete kit on VMS V9.2-1 using
+  the native compiler.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
    Version 1.0.8c  2022-06-08
    --------------------------
 
-- Changed VMS builders to accommodate x86_64 hardware architecture. 
+- Changed VMS builders to accommodate x86_64 hardware architecture.
   ([.vms]descrip.mms, [.vms]descrip_src.mms)
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1,5 +1,5 @@
 
-bzip2 -- Source kit.  Version 1.0.8c  2022-06-08.
+bzip2 -- Source kit.  Version 1.0.8d  2023-09-18.
 
 Original bzip2 kit contents copyright (C) 1996-2019 by Julian Seward.
    License terms in: LICENSE
