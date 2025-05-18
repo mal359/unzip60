@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 1990-2014 Info-ZIP.  All rights reserved.
+  Copyright (c) 1990-2023 Info-ZIP.  All rights reserved.
 
   See the accompanying file LICENSE, version 2009-Jan-02 or later
   (the contents of which are also included in unzip.h) for terms of use.
@@ -1749,11 +1749,18 @@ int process_cdir_file_hdr(__G)    /* return PK-type error code */
         G.pInfo->lcflag = 1;
 
     /* Handle the PKWare verification bit, bit 2 (0x0004) of internal
-       attributes.  If this is set, then a verification checksum is in the
-       first 3 bytes of the external attributes.  In this case all we can use
-       for setting file attributes is the last external attributes byte. */
+     * attributes.  If this is set, then a verification checksum is in
+     * the first 3 bytes of the external attributes.  In this case all
+     * we can use for setting file attributes is the last external
+     * attributes byte.
+     *
+     * Use of this bit is incompatible with symlinks, which require use
+     * of the symlink bit in the high end of the external attributes.
+     */
     if (G.crec.internal_file_attributes & 0x0004)
+    {
       G.crec.external_file_attributes &= (ulg)0xff;
+    }
 
     /* do Amigas (AMIGA_) also have volume labels? */
     if (IS_VOLID(G.crec.external_file_attributes) &&
@@ -1778,8 +1785,9 @@ int process_cdir_file_hdr(__G)    /* return PK-type error code */
 #endif
 
 #ifdef SYMLINKS
-    /* Initialize the symlink flag, may be set by the platform-specific
-       mapattr function.  */
+    /* Initialize the symlink flag.  The system-specific mapattr() (or
+     * other) function should set it properly.
+     */
     G.pInfo->symlink = 0;
 #endif
 
@@ -2990,7 +2998,7 @@ unsigned ef_scan_for_izux(ef_buf, ef_len, ef_is_c, dos_mdatetime,
 
           case EF_IZUNIX3:
             /* new 3rd generation Unix ef */
-            have_new_type_eb = 2;
+            have_new_type_eb = 2;       /* (Maximum newness, so no tests.) */
 
             /* Ignore any prior EF_IZUNIX/EF_PKUNIX/EF_IZUNIX2 UID/GID. */
             flags &= 0x0ff;
@@ -3003,9 +3011,9 @@ unsigned ef_scan_for_izux(ef_buf, ef_len, ef_is_c, dos_mdatetime,
         */
 
 #ifdef IZ_HAVE_UXUIDGID
-            if (eb_len >= EB_UX3_MINLEN
-                && z_uidgid != NULL
-                && (*((EB_HEADSIZE + 0) + ef_buf) == 1))
+            if ((eb_len >= EB_UX3_MINLEN) &&
+             (z_uidgid != NULL) &&
+             (*((EB_HEADSIZE + 0) + ef_buf) == 1))
                     /* only know about version 1 */
             {
                 uch uid_size;

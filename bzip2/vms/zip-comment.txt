@@ -1,0 +1,13 @@
+
+bzip2 -- Source kit.  Version 1.0.8c  2022-06-08.
+
+Original bzip2 kit contents copyright (C) 1996-2019 by Julian Seward.
+   License terms in: LICENSE
+
+VMS adaptation by Steven M. Schweda.
+
+See also enclosed files README and vms/vms_notes.txt.
+
+For information on bzip2:
+    https://www.sourceware.org/bzip2/
+

@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 1990-2009 Info-ZIP.  All rights reserved.
+  Copyright (c) 1990-2016 Info-ZIP.  All rights reserved.
 
   See the accompanying file LICENSE, version 2009-Jan-02 or later
   (the contents of which are also included in unzip.h) for terms of use.
@@ -1989,7 +1989,7 @@ static int zi_short(__G)   /* return PK-type error code */
         methbuf[3] = dtype[dnum];
     } else if (methnum >= NUM_METHODS) {   /* unknown */
         /* 2016-12-05 SMS.
-         * https://launchpad.net/bugs/1643750
+         * https://launchpad.net/bugs/1643750  CVE-2016-9844.
          * Unexpectedly large compression methods overflow
          * &methbuf[].  Use the old, three-digit decimal format
          * for values which fit.  Otherwise, sacrifice the "u",

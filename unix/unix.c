@@ -676,10 +676,12 @@ int mapname(__G__ renamed)
     /* if not saving them, remove VMS version numbers (appended ";###") */
     if (!uO.V_flag && lastsemi) {
         pp = lastsemi + 1;
+        if (*pp != '\0') {        /* At least one digit is required. */       
         while (isdigit((uch)(*pp)))
             ++pp;
         if (*pp == '\0')          /* only digits between ';' and end:  nuke */
             *lastsemi = '\0';
+        }
     }
 
     /* On UNIX (and compatible systems), "." and ".." are reserved for

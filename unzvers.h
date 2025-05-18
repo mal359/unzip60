@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 1990-2009 Info-ZIP.  All rights reserved.
+  Copyright (c) 1990-2022 Info-ZIP.  All rights reserved.
 
   See the accompanying file LICENSE, version 2009-Jan-02 or later
   (the contents of which are also included in unzip.h) for terms of use.
@@ -21,7 +21,8 @@
 #  define UZ_BETALEVEL      "h03 BETA"
 #  define UZ_VERSION_DATE   "17 Apr 09"         /* internal beta version */
 #else
-#  define UZ_BETALEVEL      ""
+/* #  define UZ_BETALEVEL      "" */
+#  define UZ_BETALEVEL      "s4"
 #  define UZ_VERSION_DATE   "20 April 2009"     /* official release version */
 #  define RELEASE
 #endif
@@ -34,7 +35,7 @@
 
 #define UZ_PATCHLEVEL  0
 
-#define UZ_VER_STRING  "6.0"          /* keep in sync with Version numbers! */
+#define UZ_VER_STRING  "6.0s4"        /* keep in sync with Version numbers! */
 
 #ifndef IZ_COMPANY_NAME               /* might be already defined... */
 #  define IZ_COMPANY_NAME "Info-ZIP"

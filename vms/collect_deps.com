@@ -1,12 +1,25 @@
-$!                                              1 December 2006.  SMS.
+$! COLLECT_DEPS.COM
 $!
-$! Info-ZIP VMS accessory procedure.
+$!    Info-ZIP VMS procedure to collect MMS/MMK dependencies.
+$!
+$!    Last revised:  2014-10-08
+$!
+$!----------------------------------------------------------------------
+$! Copyright (c) 2004-2014 Info-ZIP.  All rights reserved.
+$!
+$! See the accompanying file LICENSE, version 2009-Jan-2 or later (the
+$! contents of which are also included in zip.h) for terms of use.  If,
+$! for some reason, all these files are missing, the Info-ZIP license
+$! may also be found at: ftp://ftp.info-zip.org/pub/infozip/license.html
+$!----------------------------------------------------------------------
 $!
 $!    For the product named by P1,
-$!    collect all source file dependencies specified by P3,
-$!    and add P4 prefix.
-$!    Convert absolute dependencies to relative from one level above P5.
 $!    P2 = output file specification.
+$!    Collect all source file dependencies specified by P3,
+$!    and add P4 prefix to the object file.
+$!    Convert absolute dependencies to relative from one level above P5.
+$!    P6 = slash-delimited search vector for added .IFDEF conditions.
+$!    P7 = slash-delimited macro vector for added .IFDEF conditions.
 $!
 $! MMS /EXTENDED_SYNTAX can't easily pass a macro invocation for P4, so
 $! we remove any internal spaces which might have been added to prevent
@@ -39,7 +52,7 @@ $! Include proper-inclusion-check preface.
 $!
 $ incl_macro = "INCL_"+ f$parse( p2, , , "NAME", "SYNTAX_ONLY")
 $ write deps_out "#"
-$ write deps_out "# ''p1' for VMS - MMS (or MMK) Source Dependency File."
+$ write deps_out "#    ''p1' -- MMS (or MMK) Source Dependency File."
 $ write deps_out "#"
 $ write deps_out ""
 $ write deps_out -
@@ -61,6 +74,7 @@ $    file = f$search( p3)
 $    if (file .eqs. "") then goto loop_main_end
 $!
 $    open /read /error = end_subs deps_in 'file'
+$    cond = ""
 $    loop_subs_top:
 $       read /error = loop_subs_end deps_in line
 $       line_reduced = f$edit( line, "COMPRESS, TRIM, UPCASE")
@@ -73,16 +87,59 @@ $          front = f$extract( 0, (colon+ 3), line_reduced)
 $          back = f$extract( (colon+ 3+ f$length( dev_dir_lose)), -
             1000, line_reduced)
 $          line = front+ "["+ back
-$       endif
-$       write deps_out "''prefix'"+ "''line'"
-$    goto loop_subs_top
 $!
+$!         Add .IFDEF conditions according to P6+P7.
+$!
+$          elt = 0
+$          cond_new = ""
+$          loop_elt_top:
+$             elt_str = f$element( elt, "/", p6)
+$             if (elt_str .eqs. "/") then goto loop_elt_end
+$             if (f$locate( elt_str, line) .lt. f$length( line))
+$             then
+$!               Found search target.
+$                cond_new = f$element( elt, "/", p7)
+$                goto loop_elt_end
+$             endif
+$             elt = elt+ 1
+$          goto loop_elt_top
+$          loop_elt_end:
+$!
+$          if (cond_new .nes. "")
+$          then
+$             if (cond_new .nes. cond)
+$             then
+$                if (cond .nes. "")
+$                then
+$                   write deps_out ".ENDIF # ''cond'"
+$                   cond = ""
+$                endif
+$                write deps_out ".IFDEF ''cond_new'"
+$                cond = cond_new
+$             endif
+$          else
+$             if (cond .nes. "")
+$             then
+$                write deps_out ".ENDIF # ''cond'"
+$                cond = ""
+$             endif
+$          endif
+$!
+$          write deps_out "''prefix'"+ "''line'"
+$       endif
+$    goto loop_subs_top
 $    loop_subs_end:
+$!
+$    if (cond .nes. "")
+$    then
+$       write deps_out ".ENDIF # ''cond'"
+$    endif
+$!
 $    close deps_in
 $!
 $ goto loop_main_top
-$!
 $ loop_main_end:
+$!
 $ close deps_out
 $!
 $ end_main:

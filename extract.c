@@ -2547,7 +2547,8 @@ static int test_compr_eb(__G__ eb, eb_size, compr_offset, test_uc_ebdata)
     if (compr_offset < 4)                /* field is not compressed: */
         return PK_OK;                    /* do nothing and signal OK */
 
-    /* Return no/bad-data error status if any problem is found:
+    /* CVE-2014-8140
+     * Return no/bad-data error status if any problem is found:
      *    1. eb_size is too small to hold the uncompressed size
      *       (eb_ucsize).  (Else extract eb_ucsize.)
      *    2. eb_ucsize is zero (invalid).  2014-12-04 SMS.
@@ -2844,9 +2845,27 @@ static void set_deferred_symlink(__G__ slnk_entry)
     __GDEF
     slinkentry *slnk_entry;
 {
+    int sts;
     extent ucsize = slnk_entry->targetlen;
     char *linkfname = slnk_entry->fname;
     char *linktarget = (char *)malloc(ucsize+1);
+
+#ifdef VMS
+    static int vms_symlink_works = -1;
+
+    if (vms_symlink_works < 0)
+    {
+        /* Test symlink() with an invalid file name.  If errno comes
+         * back ENOSYS ("Function not implemented"), then don't try to
+         * use it below on the symlink placeholder text files.
+         */
+        vms_symlink_works = symlink( "", "?");
+        if (errno == ENOSYS)
+            vms_symlink_works = 0;
+        else
+            vms_symlink_works = 1;
+    }
+#endif /* def VMS */
 
     if (!linktarget) {
         Info(slide, 0x201, ((char *)slide,
@@ -2875,11 +2894,29 @@ static void set_deferred_symlink(__G__ slnk_entry)
         return;
     }
     fclose(G.outfile);                  /* close "data" file for good... */
-    unlink(linkfname);                  /* ...and delete it */
-    if (QCOND2)
+
+#ifdef VMS
+    if (vms_symlink_works == 0)
+    {
+        /* Should we be using some UnZip error message function instead
+         * of perror() (or equivalent) for these "symlink error"
+         * messages?
+         */
         Info(slide, 0, ((char *)slide, LoadFarString(SymLnkFinish),
           FnFilter1(linkfname), FnFilter2(linktarget)));
-    if (symlink(linktarget, linkfname))  /* create the real link */
+
+        fprintf( stderr, "Symlink error: %s\n", strerror( ENOSYS));
+        free(linktarget);
+        return;
+    }
+#endif /* def VMS */
+
+    unlink(linkfname);                  /* ...and delete it */
+    sts = symlink(linktarget, linkfname);       /* create the real link */
+    if (QCOND2 || (sts != 0))
+        Info(slide, 0, ((char *)slide, LoadFarString(SymLnkFinish),
+          FnFilter1(linkfname), FnFilter2(linktarget)));
+    if (sts != 0)
         perror("symlink error");
     free(linktarget);
 #ifdef SET_SYMLINK_ATTRIBS
@@ -2973,7 +3010,7 @@ char *fnfilter(raw, space, size)   /* convert name to safely printable form */
 #endif /* ?HAVE_WORKING_ISPRINT */
         } else {
 #ifdef _MBCS
-            unsigned i = CLEN(r);
+            extent i = CLEN(r);
             if (se != NULL && (s > (space + (size-i-2)))) {
                 have_overflow = TRUE;
                 break;

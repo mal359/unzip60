@@ -387,7 +387,9 @@ do
   [ $? -ne 0 ] && CFLAGSR="${CFLAGSR} -DNO_`echo $func | tr '[a-z]' '[A-Z]'`"
 done
 
-# Check (seriously) for a working lchmod.
+# Check (very seriously) for a working lchmod().
+# On GNU/Linux (Clang, GCC) look for a compile-time warning like
+# "lchmod is not implemented and will always fail".
 echo 'Check for lchmod'
 temp_file="/tmp/unzip_test_$$"
 temp_link="link_$$"
@@ -395,10 +397,25 @@ temp_link="link_$$"
   echo "int main() { lchmod(\"${temp_file}\", 0666); }" \
 ) > conftest.c
 ln -s "${temp_link}" "${temp_file}" && \
- $CC $BFLAG -o conftest conftest.c >/dev/null 2>/dev/null && \
+ $CC $BFLAG -o conftest conftest.c >/dev/null 2> conftest.err
+status=$?
+if [ $status -eq 0 ]; then
+  # Check for "not implemented" warning.
+  grep implemented < conftest.err > /dev/null 2> /dev/null
+  status=$?
+  [ $status -eq 0 ] && status=666
+fi
+if [ $status -eq 0 ]; then
  ./conftest
-[ $? -ne 0 ] && CFLAGSR="${CFLAGSR} -DNO_LCHMOD"
-rm -f "${temp_file}"
+  status=$?
+fi
+if [ $status -ne 0 ]; then
+  echo '  No (NO_LCHMOD).'
+  CFLAGSR="${CFLAGSR} -DNO_LCHMOD"
+else
+  echo '  Yes.'
+fi
+rm -f "${temp_file}" conftest.err
 
 echo Check for memset
 echo "int main(){ char k; memset(&k,0,0); return 0; }" > conftest.c
@@ -478,7 +495,7 @@ CFLAGSR="${CFLAGSR} ${OPT}"
 
 echo Check for MBCS include files
 OPT=""
-for inc in mbstring.h mbctype.h
+for inc in mbstr.h mbstring.h mbctype.h
 do
    echo "#include <$inc>" > conftest.c
    $CPP conftest.c > /dev/null 2>/dev/null
@@ -511,13 +528,26 @@ else
 #
   echo "-- have MBCS support"
   CFLAGSR="${CFLAGSR} -D_MBCS"
-# check for library-supplied functions
-# add FUNCTION_NAME='function_name' to flags if found
+# Realistic check for working MBCS library functions.
+# Add FUNCTION_NAME='function_name' to flags if found.
   for func in mbschr mbsrchr
   do
     echo Check for MBCS $func
-    echo "int main() { $func(); return 0; }" > conftest.c
-    $CC $BFLAG -o conftest conftest.c >/dev/null 2>/dev/null
+    cat > conftest.c << _EOF_
+#include <stdlib.h>
+#ifdef HAVE_MBSTR_H
+#  include <mbstr.h>
+#endif
+int main()
+{
+  char *tst;
+  tst = $func( "abc", 'b');
+  printf( " tst: >%s<.\n", tst);
+  return (tst == NULL);
+}
+_EOF_
+    $CC ${CFLAGS} ${CFLAGSR} -o conftest conftest.c >/dev/null 2>/dev/null
+    [ $? -eq 0 ] && ./conftest > /dev/null
     [ $? -eq 0 ] && CFLAGSR="${CFLAGSR} -D`echo $func | tr '[a-z]' '[A-Z]'`=$func"
   done
 fi
@@ -642,24 +672,7 @@ else
     D_USE_BZ2="-DUSE_BZIP2"
     L_BZ2="${BZLF} -lbz2"
   else
-    echo "  Check if OS already has bzip2 library installed"
-    cat > conftest.c << _EOF_
-#include "bzlib.h"
-int main()
-{
-  bz_stream strm;
-  BZ2_bzCompressEnd(&strm);
-  return 0;
-}
-_EOF_
-    $CC $CFLAGS -o conftest conftest.c -lbz2 > /dev/null 2>/dev/null
-    if test $? -eq 0; then
-      echo "-- OS supports bzip2 - linking in bzip2"
-      D_USE_BZ2="-DUSE_BZIP2"
-      L_BZ2="${BZLF} -lbz2"
-    else
-      echo "-- Either bzlib.h or libbz2.a not found - no bzip2"
-    fi
+    echo "-- bzip2 sources not found - no bzip2 support"
   fi
 fi
 

@@ -1115,3 +1115,81 @@ Bugs fixed:
 These changes occurred in beta versions 6.00a to 6.00.  This list may have
 left out some bugfixes and even some features...void where prohibited, your
 mileage may vary, etc., etc.
+
+6.00s4 (25 Jul 2022):
+ - Not a formal release, only some bug fixes and minor changes to 6.00.
+ - bzip2 (1.0.8c VMS-compatible) source kit included.  bzip2/... [SMS]
+ - Add support for x86_64 hardware architecture on VMS.  Builders
+   backported (quickly) from later UnZip version.  See comments in
+   build_unzip.com or descrip.mms.  x86_64 architecture correctly
+   identified in system-identification messages.  vms/build_unzip.com,
+   vms/check_large.com (new), vms/collect_deps.com, vms/cppcld.com (new),
+   vms/descrip.mms, vms/descrip_deps.mms, vms/descrip_mkdeps.mms,
+   vms/descrip_src.mms, vms/optgen.com (new), vms/test_unzip.com (new),
+   vms/vms.c [SMS] [6.10c26]
+ - Fix bug by adding missing line end.  (vms/hlp_lib_next.com) [SMS]
+   [6.10b07]
+ - VMS-specific problem could cause "unzip -a" to truncate the last line
+   in a text file which had a one-character line ending (like LF) which
+   fell at the end of an internal buffer.  (vms/vms.c) [SMS] [6.10c01]
+ - Add VMS symlink works check.  (extract.c) [SMS] [6.10a02]
+ - Adopted a suggestion from Ireneusz Hallmann to use an alternate
+   buffer in more situations in the DLL, to solve a problem with data
+   corruption when inflating to memory.  Adapted another suggestion for
+   a better window size calculation.  The old method gave poor results
+   for buffer sizes which were not powers of two.  (inflate.c) [IH, SMS]
+   [6.10c09]
+ - In ZipInfo reports, an unexpectedly large "version made by" value
+   (>99) caused a (mostly harmless) buffer overflow, and could spoil the
+   report format.  Now, for system types where space always allows,
+   large values should always be displayed properly.  For VMS, a more
+   careful calculation is done to determine space requirements, and
+   large values should be displayed properly when space allows.
+   CVE-2014-9913.  (list.c, zipinfo.c) [quanww, sanvila, SMS] [6.10c09]
+ - Made the configuration test for lchmod() stricter, to detect a "not
+   implemented" compiler warning message (Clang and GCC on GNU/Linux).
+   (unix/configure) [SMS] [6.10c09]
+ - Changed behavior involving files which appear to have VMS version
+   numbers (names ending with ";ddd", where "ddd" is a decimal number),
+   and option "-V" (--keep-versions, /[NO]VERSION).  Previously, UnZip
+   would, by default, strip these apparent VMS version numbers when
+   extracting files, and the "-V" option was required to prevent this,
+   even when the file was not archived on a VMS system.  Thus, a Unix
+   file named "fred;123" would normally be extracted as "fred", unless
+   "-V" was specified to prevent this damage.  Now, on non-VMS systems,
+   UnZip should strip apparent VMS version numbers only from files which
+   were archived on a VMS system.  Specify "-V" explicitly to keep
+   version numbers even on VMS-archived files.  Specify "-V-" explicitly
+   to strip apparent VMS version numbers from all files regadless of
+   where they were archived (the old default behavior).  Behavior on VMS
+   systems is unchanged.  (unix/unix.c, vms/vms.c, unzip.c) [SMS]
+   [6.10c09]
+ - Fixed some buffer-overflow problems reported by oCERT (oCERT.org),
+   involving corrupt/malicious archives.  CVE-2014-8139, CVE-2014-8140,
+   and CVE-2014-8141.  Added some warning messages where corruption was
+   detected.  (extract.c, fileio.c, process.c) [SMS] [6.10c13]
+ - Re-fixed a bad "fix" from 6.10c13 for one of the buffer-overflow
+   problems reported by oCERT (oCERT.org), CVE-2014-8139.  Symptom was a
+   spurious error message like, "bad extra-field entry: EF block length
+   (0 bytes) invalid (< 4)".  (extract.c, unzpriv.h) [SMS] [6.10c16]
+ - In ZipInfo ("-Z", /ZIPINFO) short-format ("-s", /SHORT, default)
+   reports, an unexpectedly large compression method value (>999) caused
+   a (mostly harmless) buffer overflow, and spoiled the report format.
+   Now, values less than 1000 are displayed as before, using a
+   three-digit decimal format, "uDDD", but larger values are displayed
+   using a four-digit (unlabled) hexadecimal format, "XXXX".
+   https://launchpad.net/bugs/1643750  CVE-2016-9844.
+   (zipinfo.c) [Alexis Vanden Eijnde, Tyler Hicks, SMS] [6.1c21]
+ - Archives 1TB or larger could cause spurious error/warning messages:
+      error: End-of-centdir-64 signature not where expected (prepended
+       bytes?)
+        (attempting to process anyway)
+      warning [archive.zip]:  nnnnnnnnnnnnn extra bytes at beginning or
+       within zipfile 
+        (attempting to process anyway)
+   Seriously lame code in fileio.c:makeint64() (since UnZip 6.0B
+   (beta)).  (fileio.c) [David Fifield, Robert Vickerstaff, SMS] 
+   [6.10c26]
+ - Buffer overflows from invalid Unicode data.  CVE-2022-0529,
+   CVE-2022-0530.  (fileio.c, process.c)  [SMS, et al.] [6.10c26]
+

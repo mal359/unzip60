@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 1990-2009 Info-ZIP.  All rights reserved.
+  Copyright (c) 1990-2022 Info-ZIP.  All rights reserved.
 
   See the accompanying file LICENSE, version 2009-Jan-02 or later
   (the contents of which are also included in unzip.h) for terms of use.
@@ -32,6 +32,11 @@
 # ifndef RISCOS
 #  define MORE
 # endif
+#endif
+
+/* Define old bzip2 macro according to modern bzip2 macro. */
+#ifdef BZIP2_SUPPORT
+#  define USE_BZIP2
 #endif
 
 /* fUnZip should never need to be reentrant */
@@ -1229,6 +1234,9 @@
  */
 #ifdef _MBCS
 #  include <locale.h>
+#  ifdef HAVE_MBSTR_H
+#    include <mbstr.h>
+#  endif /* def HAVE_MBSTR_H */
    /* Multi Byte Character Set */
 #  define ___MBS_TMP_DEF  char *___tmp_ptr;
 #  define ___TMP_PTR      ___tmp_ptr
@@ -2601,7 +2609,7 @@ int      iswild          OF((ZCONST char *p));                    /* match.c */
 int      dateformat      OF((void));                                /* local */
 char     dateseparator   OF((void));                                /* local */
 #ifndef WINDLL
-   void  version         OF((__GPRO));                              /* local */
+void     version         OF((__GPRO));                              /* local */
 #endif
 int      mapattr         OF((__GPRO));                              /* local */
 int      mapname         OF((__GPRO__ int renamed));                /* local */
@@ -2618,7 +2626,7 @@ char    *GetLoadPath     OF((__GPRO));                              /* local */
    int   SetFileSize     OF((FILE *file, zusz_t filesize));         /* local */
 #endif
 #ifndef MTS /* macro in MTS */
-   int  close_outfile   OF((__GPRO));                              /* local */
+   void  close_outfile   OF((__GPRO));                              /* local */
 #endif
 #ifdef SET_SYMLINK_ATTRIBS
    int  set_symlnk_attribs  OF((__GPRO__ slinkentry *slnk_entry));  /* local */

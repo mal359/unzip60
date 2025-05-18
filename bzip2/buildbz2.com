@@ -3,7 +3,7 @@ $!
 $!     Build procedure for LIBBZ2_NS support library used with the
 $!     VMS versions of UnZip/ZipInfo and UnZipSFX
 $!
-$!     Last revised:  2007-12-29  CS.
+$!     Last revised:  2022-06-24  SMS.
 $!
 $!     Command args:
 $!     - select compiler environment: "VAXC", "DECC", "GNUC"
@@ -55,6 +55,7 @@ $ unzsfx_unx = "UNZIPSFX"
 $ unzsfx_cli = "UNZIPSFX_CLI"
 $!
 $ CCOPTS = ""
+$ CCOPTS_INT = ""
 $ LINKOPTS = "/notraceback"
 $ LISTING = " /nolist"
 $ MAY_USE_DECC = 1
@@ -67,6 +68,14 @@ $ argloop:
 $     current_arg_name = "P''arg_cnt'"
 $     curr_arg = f$edit( 'current_arg_name', "UPCASE")
 $     if (curr_arg .eqs. "") then goto argloop_out
+$!
+$     if (f$extract( 0, 4, curr_arg) .eqs. "ARCH")
+$     then
+$         opts = f$edit( curr_arg, "COLLAPSE")
+$         eq = f$locate( "=", opts)
+$         ARCH = f$edit( f$extract( (eq+ 1), 1000, opts), "UPCASE")
+$         goto argloop_end
+$     endif
 $!
 $     if (f$extract( 0, 5, curr_arg) .eqs. "CCOPT")
 $     then
@@ -118,21 +127,20 @@ $!
 $ workdir = f$environment("default")
 $ here = f$parse(workdir, , , "device") + f$parse(workdir, , , "directory")
 $!
-$! Sense the host architecture (Alpha, Itanium, or VAX).
+$! Sense the host architecture (Alpha, Itanium, VAX, or x86_64).
 $!
-$ if (f$getsyi("HW_MODEL") .lt. 1024)
+$ if (ARCH .eqs. "")
 $ then
-$     arch = "VAX"
-$ else
-$     if (f$getsyi("ARCH_TYPE") .eq. 2)
+$     if (f$getsyi( "HW_MODEL") .gt. 0) .and. -
+       (f$getsyi( "HW_MODEL") .lt. 1024)
 $     then
-$         arch = "ALPHA"
+$         arch = "VAX"
 $     else
-$         if (f$getsyi("ARCH_TYPE") .eq. 3)
+$         if (f$getsyi( "ARCH_TYPE") .eq. 2)
 $         then
-$             arch = "IA64"
+$             arch = "ALPHA"
 $         else
-$             arch = "unknown_arch"
+$             arch = f$edit( f$getsyi( "ARCH_NAME"), "UPCASE")
 $         endif
 $     endif
 $ endif
@@ -159,7 +167,7 @@ $         say "You must use DEC/Compaq/HP C to build UnZip."
 $         goto error
 $     endif
 $!
-$     cc = "cc /standard=relax /prefix=all /ansi /names=(as_is)"
+$     CCOPTS_INT = " /standard=relax /prefix=all /ansi /names=(as_is)"
 $     defs = "''local_bzip2'"
 $ else
 $     HAVE_DECC_VAX = (f$search("SYS$SYSTEM:DECC$COMPILER.EXE") .nes. "")
@@ -169,7 +177,7 @@ $     if (HAVE_DECC_VAX .and. MAY_USE_DECC)
 $     then
 $         ! We use DECC:
 $         USE_DECC_VAX = 1
-$         cc = "cc /decc /prefix=all /names=(as_is)"
+$         CCOPTS_INT = " /decc /prefix=all /names=(as_is)"
 $         defs = "''local_bzip2'"
 $     else
 $         ! We use VAXC (or GNU C):
@@ -184,9 +192,7 @@ $             opts = "GNU_CC:[000000]GCCLIB.OLB /LIBRARY,"
 $         else
 $             if (HAVE_DECC_VAX)
 $             then
-$                 cc = "cc /vaxc"
-$             else
-$                 cc = "cc"
+$                 CCOPTS_INT = " /vaxc"
 $             endif
 $             dest = "''dest'V"
 $             cmpl = "VAX C"
@@ -219,7 +225,12 @@ $     endif
 $!
 $! Define compiler command.
 $!
-$     cc = cc + " /include = ([])" + LISTING + CCOPTS
+$     if (f$type( CC) .eqs. "")
+$     then
+$         cc = "cc"
+$     endif
+$!
+$     cc = cc+ " /include = ([])"+ CCOPTS_INT+ LISTING+ CCOPTS
 $!
 $! Show interesting facts.
 $!
