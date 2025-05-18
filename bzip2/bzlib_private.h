@@ -23,11 +23,11 @@
 #define _BZLIB_PRIVATE_H
 
 #include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 
 #ifndef BZ_NO_STDIO
+#include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 #endif
 
 #include "bzlib.h"

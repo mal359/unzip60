@@ -75,21 +75,42 @@ typedef
 #include <stdio.h>
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__CYGWIN__)
 #   include <windows.h>
 #   ifdef small
       /* windows.h define small to char */
 #      undef small
 #   endif
-#   ifdef BZ_EXPORT
-#   define BZ_API(func) WINAPI func
-#   define BZ_EXTERN extern
+#   ifndef WINAPI
+#   define WINAPI
+#   endif
+#   ifndef __GNUC__
+       /* Use these rules only for non-gcc native win32 */
+#      ifdef BZ_EXPORT
+#      define BZ_API(func) WINAPI func
+#      define BZ_EXTERN extern
+#      else
+       /* import windows dll dynamically */
+#      define BZ_API(func) (WINAPI * func)
+#      define BZ_EXTERN
+#      endif
 #   else
-   /* import windows dll dynamically */
-#   define BZ_API(func) (WINAPI * func)
-#   define BZ_EXTERN
+       /* For gcc on native win32, use import library trampoline       */
+       /* functions on DLL import.  This avoids requiring clients to   */
+       /* use special compilation flags depending on whether eventual  */
+       /* link will be against static libbz2 or against DLL, at the    */
+       /* expense of a small loss of efficiency. */
+
+       /* Because libbz2 does not export any DATA items, GNU ld's      */
+       /* "auto-import" is not a factor; the MinGW-built DLL can be    */
+       /* used by other compilers, provided an import library suitable */
+       /* for that compiler is (manually) constructed using the .def   */
+       /* file and the appropriate tool. */
+#      define BZ_API(func) func
+#      define BZ_EXTERN extern
 #   endif
 #else
+    /* non-win32 platforms, and cygwin */
 #   define BZ_API(func) func
 #   define BZ_EXTERN extern
 #endif

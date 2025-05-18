@@ -12,16 +12,14 @@
 # in the file LICENSE.
 # ------------------------------------------------------------------
 
+somajor=1.0
+sominor=$(somajor).4
 SHELL=/bin/sh
 
 # To assist in cross-compiling
-CC=gcc
-AR=ar
-RANLIB=ranlib
-LDFLAGS=
-
-BIGFILES=-D_FILE_OFFSET_BITS=64
-CFLAGS=-Wall -Winline -O2 -g $(BIGFILES)
+CC ?=gcc
+AR ?= ar
+RANLIB ?= ranlib
 
 # Where you want it installed when you do 'make install'
 PREFIX=/usr/local
@@ -37,29 +35,50 @@ OBJS= blocksort.o  \
 
 all: libbz2.a bzip2 bzip2recover test
 
-bzip2: libbz2.a bzip2.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -o bzip2 bzip2.o -L. -lbz2
+bzip2: libbz2.so bzip2.o
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o bzip2 bzip2.o -L. -lbz2
 
 bzip2recover: bzip2recover.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -o bzip2recover bzip2recover.o
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o bzip2recover bzip2recover.o
 
 libbz2.a: $(OBJS)
 	rm -f libbz2.a
 	$(AR) cq libbz2.a $(OBJS)
-	@if ( test -f $(RANLIB) -o -f /usr/bin/ranlib -o \
-		-f /bin/ranlib -o -f /usr/ccs/bin/ranlib ) ; then \
+	@if ( test -f $(RANLIB) || test -f /usr/bin/ranlib || \
+		test -f /bin/ranlib || test -f /usr/ccs/bin/ranlib ) ; then \
 		echo $(RANLIB) libbz2.a ; \
 		$(RANLIB) libbz2.a ; \
 	fi
 
+libbz2.so: libbz2.so.$(somajor)
+	ln -sf $^ $@
+
+libbz2.so.$(somajor): libbz2.so.$(sominor)
+	ln -sf $^ $@
+
+libbz2.so.$(sominor): $(OBJS:%.o=%.sho)
+	$(CC) -o libbz2.so.$(sominor) -shared $(LDFLAGS) \
+	  -Wl,-soname,libbz2.so.$(somajor) $^ -lc
+
+$(OBJS:%.o=%.sho) bzip2.sho bzip2recover.sho: %.sho: %.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -fPIC -o $@ -c $<
+$(OBJS) bzip2.o bzip2recover.o: %.o: %.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+
 check: test
 test: bzip2
 	@cat words1
+	LD_LIBRARY_PATH=.:$$LD_LIBRARY_PATH \
 	./bzip2 -1  < sample1.ref > sample1.rb2
+	LD_LIBRARY_PATH=.:$$LD_LIBRARY_PATH \
 	./bzip2 -2  < sample2.ref > sample2.rb2
+	LD_LIBRARY_PATH=.:$$LD_LIBRARY_PATH \
 	./bzip2 -3  < sample3.ref > sample3.rb2
+	LD_LIBRARY_PATH=.:$$LD_LIBRARY_PATH \
 	./bzip2 -d  < sample1.bz2 > sample1.tst
+	LD_LIBRARY_PATH=.:$$LD_LIBRARY_PATH \
 	./bzip2 -d  < sample2.bz2 > sample2.tst
+	LD_LIBRARY_PATH=.:$$LD_LIBRARY_PATH \
 	./bzip2 -ds < sample3.bz2 > sample3.tst
 	cmp sample1.bz2 sample1.rb2 
 	cmp sample2.bz2 sample2.rb2
@@ -69,15 +88,15 @@ test: bzip2
 	cmp sample3.tst sample3.ref
 	@cat words3
 
-install: bzip2 bzip2recover
+install: bzip2 bzip2recover libbz2.a
 	if ( test ! -d $(PREFIX)/bin ) ; then mkdir -p $(PREFIX)/bin ; fi
 	if ( test ! -d $(PREFIX)/lib ) ; then mkdir -p $(PREFIX)/lib ; fi
 	if ( test ! -d $(PREFIX)/man ) ; then mkdir -p $(PREFIX)/man ; fi
 	if ( test ! -d $(PREFIX)/man/man1 ) ; then mkdir -p $(PREFIX)/man/man1 ; fi
 	if ( test ! -d $(PREFIX)/include ) ; then mkdir -p $(PREFIX)/include ; fi
 	cp -f bzip2 $(PREFIX)/bin/bzip2
-	cp -f bzip2 $(PREFIX)/bin/bunzip2
-	cp -f bzip2 $(PREFIX)/bin/bzcat
+	ln -s -f $(PREFIX)/bin/bzip2 $(PREFIX)/bin/bunzip2
+	ln -s -f $(PREFIX)/bin/bzip2 $(PREFIX)/bin/bzcat
 	cp -f bzip2recover $(PREFIX)/bin/bzip2recover
 	chmod a+x $(PREFIX)/bin/bzip2
 	chmod a+x $(PREFIX)/bin/bunzip2
@@ -87,7 +106,7 @@ install: bzip2 bzip2recover
 	chmod a+r $(PREFIX)/man/man1/bzip2.1
 	cp -f bzlib.h $(PREFIX)/include
 	chmod a+r $(PREFIX)/include/bzlib.h
-	cp -f libbz2.a $(PREFIX)/lib
+	cp -fa libbz2.a libbz2.so* $(PREFIX)/lib
 	chmod a+r $(PREFIX)/lib/libbz2.a
 	cp -f bzgrep $(PREFIX)/bin/bzgrep
 	ln -s -f $(PREFIX)/bin/bzgrep $(PREFIX)/bin/bzegrep
@@ -109,33 +128,13 @@ install: bzip2 bzip2recover
 	echo ".so man1/bzdiff.1" > $(PREFIX)/man/man1/bzcmp.1
 
 clean: 
-	rm -f *.o libbz2.a bzip2 bzip2recover \
+	rm -f *.o *.sho libbz2.a libbz2.so* bzip2 bzip2recover \
 	sample1.rb2 sample2.rb2 sample3.rb2 \
 	sample1.tst sample2.tst sample3.tst
 
-blocksort.o: blocksort.c
-	@cat words0
-	$(CC) $(CFLAGS) -c blocksort.c
-huffman.o: huffman.c
-	$(CC) $(CFLAGS) -c huffman.c
-crctable.o: crctable.c
-	$(CC) $(CFLAGS) -c crctable.c
-randtable.o: randtable.c
-	$(CC) $(CFLAGS) -c randtable.c
-compress.o: compress.c
-	$(CC) $(CFLAGS) -c compress.c
-decompress.o: decompress.c
-	$(CC) $(CFLAGS) -c decompress.c
-bzlib.o: bzlib.c
-	$(CC) $(CFLAGS) -c bzlib.c
-bzip2.o: bzip2.c
-	$(CC) $(CFLAGS) -c bzip2.c
-bzip2recover.o: bzip2recover.c
-	$(CC) $(CFLAGS) -c bzip2recover.c
-
 
 distclean: clean
-	rm -f manual.ps manual.html manual.pdf
+	rm -f manual.ps manual.html manual.pdf bzip2.txt bzip2.1.preformatted
 
 DISTNAME=bzip2-1.0.8
 dist: check manual
@@ -205,7 +204,13 @@ dist: check manual
 MANUAL_SRCS= 	bz-common.xsl bz-fo.xsl bz-html.xsl bzip.css \
 		entities.xml manual.xml 
 
-manual: manual.html manual.ps manual.pdf
+bzip2.txt: bzip2.1
+       MANWIDTH=67 man --ascii ./$^ > $@
+
+bzip2.1.preformatted: bzip2.1
+       MAN_KEEP_FORMATTING=1 MANWIDTH=67 man -E UTF-8 ./$^ > $@
+
+manual: manual.html manual.ps manual.pdf bzip2.txt bzip2.1.preformatted
 
 manual.ps: $(MANUAL_SRCS)
 	./xmlproc.sh -ps manual.xml

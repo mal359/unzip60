@@ -1396,7 +1396,7 @@ const char * BZ_API(BZ2_bzlibVersionDate)(void)
 #ifndef BZ_NO_STDIO
 /*---------------------------------------------------*/
 
-#if defined(_WIN32) || defined(OS2) || defined(MSDOS)
+#if defined(_WIN32) || defined(OS2) || defined(MSDOS) || defined(__CYGWIN__)
 #   include <fcntl.h>
 #   include <io.h>
 #   define SET_BINARY_MODE(file) setmode(fileno(file),O_BINARY)
@@ -1432,7 +1432,7 @@ BZFILE * bzopen_or_bzdopen
       case 's':
          smallMode = 1; break;
       default:
-         if (isdigit((int)(*mode))) {
+         if (isdigit((unsigned char)(*mode))) {
             blockSize100k = *mode-BZ_HDR_0;
          }
       }

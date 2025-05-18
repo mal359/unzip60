@@ -247,6 +247,8 @@
          ERROR_IF_MINUS_ONE ( retVal );               \
       } while ( 0 )
 
+#   define STDERR_FILENO _fileno(stderr)
+
 #endif /* BZ_LCCWIN32 */
 
 
@@ -318,6 +320,7 @@ static void    compressedStreamEOF   ( void )        NORETURN;
 static void    copyFileName ( Char*, Char* );
 static void*   myMalloc     ( Int32 );
 static void    applySavedFileAttrToOutputFile ( IntNative fd );
+static void    applySavedTimeInfoToOutputFile ( Char *dstName );
 
 
 
@@ -465,6 +468,7 @@ void compressStream ( FILE *stream, FILE *zStream )
    if (zStream != stdout) {
       Int32 fd = fileno ( zStream );
       if (fd < 0) goto errhandler_io;
+      applySavedTimeInfoToOutputFile ( outName ); 
       applySavedFileAttrToOutputFile ( fd );
       ret = fclose ( zStream );
       outputHandleJustInCase = NULL;
@@ -578,17 +582,18 @@ Bool uncompressStream ( FILE *zStream, FILE *stream )
 
    closeok:
    if (ferror(zStream)) goto errhandler_io;
+   ret = fflush ( stream );
+   if (ret != 0) goto errhandler_io;
    if (stream != stdout) {
       Int32 fd = fileno ( stream );
       if (fd < 0) goto errhandler_io;
+      applySavedTimeInfoToOutputFile ( outName );
       applySavedFileAttrToOutputFile ( fd );
    }
    ret = fclose ( zStream );
    if (ret == EOF) goto errhandler_io;
 
    if (ferror(stream)) goto errhandler_io;
-   ret = fflush ( stream );
-   if (ret != 0) goto errhandler_io;
    if (stream != stdout) {
       ret = fclose ( stream );
       outputHandleJustInCase = NULL;
@@ -912,10 +917,9 @@ void mySignalCatcher ( IntNative n )
 static 
 void mySIGSEGVorSIGBUScatcher ( IntNative n )
 {
+   const char *msg;
    if (opMode == OM_Z)
-      fprintf ( 
-      stderr,
-      "\n%s: Caught a SIGSEGV or SIGBUS whilst compressing.\n"
+      msg = ": Caught a SIGSEGV or SIGBUS whilst compressing.\n"
       "\n"
       "   Possible causes are (most likely first):\n"
       "   (1) This computer has unreliable memory or cache hardware\n"
@@ -931,12 +935,9 @@ void mySIGSEGVorSIGBUScatcher ( IntNative n )
       "   bug report should have.  If the manual is available on your\n"
       "   system, please try and read it before mailing me.  If you don't\n"
       "   have the manual or can't be bothered to read it, mail me anyway.\n"
-      "\n",
-      progName );
-      else
-      fprintf ( 
-      stderr,
-      "\n%s: Caught a SIGSEGV or SIGBUS whilst decompressing.\n"
+      "\n";
+   else
+      msg = ": Caught a SIGSEGV or SIGBUS whilst decompressing.\n"
       "\n"
       "   Possible causes are (most likely first):\n"
       "   (1) The compressed data is corrupted, and bzip2's usual checks\n"
@@ -954,13 +955,25 @@ void mySIGSEGVorSIGBUScatcher ( IntNative n )
       "   bug report should have.  If the manual is available on your\n"
       "   system, please try and read it before mailing me.  If you don't\n"
       "   have the manual or can't be bothered to read it, mail me anyway.\n"
-      "\n",
-      progName );
+      "\n";
+   write ( STDERR_FILENO, "\n", 1 );
+   write ( STDERR_FILENO, progName, strlen ( progName ) );
+   write ( STDERR_FILENO, msg, strlen ( msg ) );
 
-   showFileNames();
-   if (opMode == OM_Z)
-      cleanUpAndFail( 3 ); else
-      { cadvise(); cleanUpAndFail( 2 ); }
+   msg = "\tInput file = ";
+   write ( STDERR_FILENO, msg, strlen (msg) );
+   write ( STDERR_FILENO, inName, strlen (inName) );
+   write ( STDERR_FILENO, "\n", 1 );
+   msg = "\tOutput file = ";
+   write ( STDERR_FILENO, msg, strlen (msg) );
+   write ( STDERR_FILENO, outName, strlen (outName) );
+   write ( STDERR_FILENO, "\n", 1 );
+
+   /* Don't call cleanupAndFail. If we ended up here something went
+      terribly wrong. Trying to clean up might fail spectacularly. */
+
+   if (opMode == OM_Z) setExit(3); else setExit(2);
+   _exit(exitValue);
 }
 
 
@@ -1141,7 +1154,7 @@ struct MY_STAT fileMetaInfo;
 static 
 void saveInputFileMetaInfo ( Char *srcName )
 {
-#  if BZ_UNIX | BZ_VMS
+#if BZ_UNIX | BZ_VMS
    IntNative retVal;
    /* Note use of stat here, not lstat. */
    retVal = MY_STAT( srcName, &fileMetaInfo );
@@ -1219,7 +1232,7 @@ Bool containsDubiousChars ( Char* name )
 #if ACCEPT_VMS_SUFFIXES
 #  define BZ_N_SUFFIX_PAIRS 6
 #else /* ACCEPT_VMS_SUFFIXES */
-#  define BZ_N_SUFFIX_PAIRS 4
+#define BZ_N_SUFFIX_PAIRS 4
 #endif /* ACCEPT_VMS_SUFFIXES [else] */
 
 const Char* zSuffix[BZ_N_SUFFIX_PAIRS] 
@@ -1486,7 +1499,7 @@ void uncompress ( Char *name )
    Bool  magicNumberOK;
    Bool  cantGuess;
    struct MY_STAT statBuf;
-
+   
 #if BZ_VMS
 #  define EXT_OUT "-out"
 #else /* BZ_VMS */
@@ -1776,7 +1789,7 @@ void testf ( Char *name )
 static 
 void license ( void )
 {
-   fprintf ( stderr,
+   fprintf ( stdout,
 
     "bzip2, a block-sorting file compressor.  "
     "Version %s%s, %s.\n"
@@ -1961,8 +1974,8 @@ void addFlagsFromEnvVar ( Cell** argList, Char* varName )
          if (p[i] == 0) break;
          p += i;
          i = 0;
-         while (isspace((Int32)(p[0]))) p++;
-         while (p[i] != 0 && !isspace((Int32)(p[i]))) i++;
+         while (isspace((UChar)(p[0]))) p++;
+         while (p[i] != 0 && !isspace((UChar)(p[i]))) i++;
          if (i > 0) {
             k = i; if (k > FILE_NAME_LEN-10) k = FILE_NAME_LEN-10;
             for (j = 0; j < k; j++) tmpName[j] = p[j];
@@ -2127,7 +2140,9 @@ IntNative main ( IntNative argc, Char *argv[] )
                case '8': blockSize100k    = 8; break;
                case '9': blockSize100k    = 9; break;
                case 'V':
-               case 'L': license();            break;
+               case 'L': license();
+                         exit ( 0 );
+                         break;
                case 'v': verbosity++; break;
                case 'h': usage ( progName );
                          exit ( 0 );
@@ -2153,8 +2168,8 @@ IntNative main ( IntNative argc, Char *argv[] )
       if (ISFLAG("--keep"))              keepInputFiles   = True;    else
       if (ISFLAG("--small"))             smallMode        = True;    else
       if (ISFLAG("--quiet"))             noisy            = False;   else
-      if (ISFLAG("--version"))           license();                  else
-      if (ISFLAG("--license"))           license();                  else
+      if (ISFLAG("--version"))           { license(); exit ( 0 ); }  else
+      if (ISFLAG("--license"))           { license(); exit ( 0 ); }  else
       if (ISFLAG("--exponential"))       workFactor = 1;             else 
       if (ISFLAG("--repetitive-best"))   redundant(aa->name);        else
       if (ISFLAG("--repetitive-fast"))   redundant(aa->name);        else
