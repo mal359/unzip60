@@ -1623,25 +1623,19 @@ void version(__G)
       " (SCO Xenix)",
 #else
 #ifdef __NetBSD__
-#  ifdef NetBSD0_8
-      (sprintf(os_namebuf, " (NetBSD 0.8%c)", (char)(NetBSD0_8 - 1 + 'A')),
-       os_namebuf),
-#  else
-#  ifdef NetBSD0_9
-      (sprintf(os_namebuf, " (NetBSD 0.9%c)", (char)(NetBSD0_9 - 1 + 'A')),
-       os_namebuf),
-#  else
-#  ifdef NetBSD1_0
-      (sprintf(os_namebuf, " (NetBSD 1.0%c)", (char)(NetBSD1_0 - 1 + 'A')),
-       os_namebuf),
-#  else
-      (BSD4_4 == 0.5)? " (NetBSD before 0.9)" : " (NetBSD 1.1 or later)",
-#  endif
-#  endif
-#  endif
+      " (NetBSD)",
 #else
 #ifdef __FreeBSD__
-      (BSD4_4 == 0.5)? " (FreeBSD 1.x)" : " (FreeBSD 2.0 or later)",
+      " (FreeBSD)",
+#else
+#ifdef __OpenBSD__
+      " (OpenBSD)",
+#else
+#ifdef __DragonFly__
+      " (DragonFly BSD)",
+#else
+#ifdef __MidnightBSD__
+      " (MidnightBSD)",
 #else
 #ifdef __bsdi__
       (BSD4_4 == 0.5)? " (BSD/386 1.0)" : " (BSD/386 1.1 or later)",
@@ -1697,6 +1691,12 @@ void version(__G)
       " (LynxOS)",
 #else
 #ifdef __APPLE__
+#  ifdef __aarch64__
+      " macOS Apple Silicon",
+#  else
+#  ifdef __x86_64__
+      " macOS Intel 64-bit",
+#  else
 #  ifdef __i386__
       " Mac OS X Intel i32",
 #  else
@@ -1706,10 +1706,12 @@ void version(__G)
 #  ifdef __ppc64__
       " Mac OS X PowerPC64",
 #  else
-      " Mac OS X",
+      " A sour Apple",
 #  endif /* __ppc64__ */
 #  endif /* __ppc__ */
 #  endif /* __i386__ */
+#  endif /* __x86_64__ */
+#  endif /* __aarch64__ */
 #else
       "",
 #endif /* Apple */
@@ -1728,8 +1730,11 @@ void version(__G)
 #endif /* Cygwin */
 #endif /* 386BSD */
 #endif /* BSDI BSD/386 */
-#endif /* NetBSD */
+#endif /* MidnightBSD */
+#endif /* DragonFly BSD */
+#endif /* OpenBSD */
 #endif /* FreeBSD */
+#endif /* NetBSD */
 #endif /* SCO Xenix */
 #endif /* SCO Unix */
 #endif /* Minix */

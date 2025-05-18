@@ -1046,7 +1046,7 @@ int SetFileSize(FILE *file, zusz_t filesize)
 /* Function close_outfile() */
 /****************************/
 
-void close_outfile(__G)
+int close_outfile(__G)
     __GDEF
 {
     FILETIME Modft;    /* File time type defined in NT, `last modified' time */
@@ -2554,21 +2554,100 @@ void version(__G)
       "(Windows NT v3.5 SDK)",
 #  elif (_MSC_VER == 900)
       "(Visual C++ v2.x)",
-#  elif (_MSC_VER > 900)
-      (sprintf(buf2, "(Visual C++ %d.%d)", _MSC_VER/100 - 6, _MSC_VER%100/10),
+#  elif (900 < _MSC_VER && _MSC_VER <= 1800)
+      (sprintf(buf2, "(Visual C++ v%d.%d)", _MSC_VER/100 - 6, _MSC_VER%100 / 10),
+        buf2),
+#  elif (_MSC_VER == 1900)
+      "(Visual C++ v14.0)",
+#  elif (_MSC_VER == 1910)
+      "(Visual C++ v15.0)",
+#  elif (_MSC_VER == 1911)
+      "(Visual C++ v15.3)",
+#  elif (1912 <= _MSC_VER && _MSC_VER < 1920)
+      (sprintf(buf2, "(Visual C++ v%d.%d)", _MSC_VER/100 - 4, _MSC_VER%100 - 7),
+        buf2),
+#  elif (1920 <= _MSC_VER && _MSC_VER < 1927)
+      (sprintf(buf2, "(Visual C++ v%d.%d)", _MSC_VER/100 - 3, _MSC_VER%100 - 20),
+        buf2),
+#  elif (192829333 <= _MSC_FULL_VER && _MSC_FULL_VER < 192829910)
+      "(Visual C++ v16.8)",
+#  elif (192829910 <= _MSC_FULL_VER && _MSC_FULL_VER < 192929917)
+      "(Visual C++ v16.9)",
+#  elif (192929917 <= _MSC_FULL_VER && _MSC_FULL_VER < 192930129)
+      "(Visual C++ v16.10)",
+#  elif (192930129 <= _MSC_FULL_VER && _MSC_FULL_VER < 193000000)
+      "(Visual C++ v16.11)",
+#  elif (_MSC_VER >= 1930)
+	  (sprintf(buf2, "(Visual C++ v%d.%d)", _MSC_VER/100 - 2, _MSC_VER%100 - 30),
         buf2),
 #  else
       "(bad version)",
 #  endif
 #elif defined(__WATCOMC__)
-#  if (__WATCOMC__ % 10 > 0)
-      (sprintf(buf, "Watcom C/C++ %d.%02d", __WATCOMC__ / 100,
-       __WATCOMC__ % 100), buf), "",
+#  if(__WATCOMC__ >= 1200)
+      (sprintf(buf, "Open Watcom C/C++ %d.%d", (__WATCOMC__ / 100) -11 ,
+       (__WATCOMC__ % 100) / 10), buf), "",
 #  else
       (sprintf(buf, "Watcom C/C++ %d.%d", __WATCOMC__ / 100,
-       (__WATCOMC__ % 100) / 10), buf), "",
+       __WATCOMC__ % 100, buf), "",
 #  endif
+/* This is disgusting */
 #elif defined(__BORLANDC__)
+#  if defined(__CODEGEARC__) /* Ripped from Embarcadero's documentation */
+#	if (__CODEGEARC__ == 0x0590)
+	  "CodeGear C++ 5.90 (C++Builder 2007)",
+#	elif (__CODEGEARC__ == 0x0591)
+	  "CodeGear C++ 5.91 (C++Builder 2007)",
+#	elif (__CODEGEARC__ == 0x0592)
+	  "CodeGear C++ 5.92 (C++Builder 2007)",
+#	elif (__CODEGEARC__ == 0x0593)
+	  "CodeGear C++ 5.93 (C++Builder 2007)",
+#	elif (__CODEGEARC__ == 0x0610)
+	  "CodeGear C++ 6.10 (C++Builder 2009)",
+#	elif (__CODEGEARC__ == 0x0620)
+	  "Embarcadero C++ 6.20 (C++Builder 2010)",
+#	elif (__CODEGEARC__ == 0x0631)
+	  "Embarcadero C++ 6.21 (C++Builder 2010)",
+#	elif (__CODEGEARC__ == 0x0630)
+	  "Embarcadero C++ 6.30 (C++Builder XE)",
+#	elif (__CODEGEARC__ == 0x0631)
+	  "Embarcadero C++ 6.31 (C++Builder XE)",
+#	elif (__CODEGEARC__ == 0x0640)
+	  "Embarcadero C++ 6.40 (C++Builder XE2)",
+#	elif (__CODEGEARC__ == 0x0650)
+	  "Embarcadero C++ 6.50 (C++Builder XE3)",
+#	elif (__CODEGEARC__ == 0x0651)
+	  "Embarcadero C++ 6.51 (C++Builder XE3)",
+#	elif (__CODEGEARC__ == 0x0660)
+	  "Embarcadero C++ 6.60 (C++Builder XE4)",
+#	elif (__CODEGEARC__ == 0x0670)
+	  "Embarcadero C++ 6.70 (C++Builder XE5)",
+#	elif (__CODEGEARC__ == 0x0680)
+	  "Embarcadero C++ 6.80 (C++Builder XE6)",
+#	elif (__CODEGEARC__ == 0x0690)
+	  "Embarcadero C++ 6.90 (C++Builder XE7)",
+#	elif (__CODEGEARC__ == 0x0700)
+	  "Embarcadero C++ 7.00 (C++Builder XE8)",
+#	elif (__CODEGEARC__ == 0x0710)
+	  "Embarcadero C++ 7.10 (C++Builder Seattle)",
+#	elif (__CODEGEARC__ == 0x0711)
+	  "Embarcadero C++ 7.11 (C++Builder Seattle)",  
+#	elif (__CODEGEARC__ == 0x0720)
+	  "Embarcadero C++ 7.20 (C++Builder Berlin)",
+#	elif (__CODEGEARC__ == 0x0730)
+	  "Embarcadero C++ 7.30 (C++Builder Tokyo)",
+#	elif (__CODEGEARC__ == 0x0740)
+	  "Embarcadero C++ 7.40 (C++Builder Rio)",
+#	elif (__CODEGEARC__ == 0x0750)
+	  "Embarcadero C++ 7.50 (C++Builder Sydney)",
+#	elif (__CODEGEARC__ == 0x0760)
+	  "Embarcadero C++ 7.60 (C++Builder Alexandria)",
+#	elif (__CODEGEARC__ == 0x0770)
+	  "Embarcadero C++ 7.70 (C++Builder Athens)",
+#	else
+	  "Embarcadero C++ later than 7.70",
+#   endif
+#  else
       "Borland C++",
 #  if (__BORLANDC__ < 0x0200)
       " 1.0",
@@ -2585,19 +2664,23 @@ void version(__G)
 #  elif (__BORLANDC__ == 0x0500)   /* __TURBOC__ = 0x0340 */
       " 5.0",
 #  elif (__BORLANDC__ == 0x0520)   /* __TURBOC__ = 0x0520 */
-      " 5.2 (C++ Builder 1.0)",
+      " 5.2 (C++Builder 1.0)",
 #  elif (__BORLANDC__ == 0x0530)   /* __TURBOC__ = 0x0530 */
-      " 5.3 (C++ Builder 3.0)",
+      " 5.3 (C++Builder 3.0)",
 #  elif (__BORLANDC__ == 0x0540)   /* __TURBOC__ = 0x0540 */
-      " 5.4 (C++ Builder 4.0)",
+      " 5.4 (C++Builder 4.0)",
 #  elif (__BORLANDC__ == 0x0550)   /* __TURBOC__ = 0x0550 */
-      " 5.5 (C++ Builder 5.0)",
+      " 5.5 (C++Builder 5.0)",
 #  elif (__BORLANDC__ == 0x0551)   /* __TURBOC__ = 0x0551 */
-      " 5.5.1 (C++ Builder 5.0.1)",
+      " 5.5.1 (C++Builder 5.0.1)",
 #  elif (__BORLANDC__ == 0x0560)   /* __TURBOC__ = 0x0560 */
-      " 6.0 (C++ Builder 6.0)",
+      " 5.6 (C++Builder 6.0)",
+#  elif (__BORLANDC__ == 0x0562)    /* __TURBOC__ = 0x0562 */
+      " 5.6.4 (C++BuilderX)",
+#  elif (__BORLANDC__ == 0x0570)   /* __TURBOC__ = 0x0570 */
+      " 5.7 (C++Builder 2006)",
 #  else
-      " later than 6.0",
+      " (Silly hacked copy)",
 #  endif
 #elif defined(__LCC__)
       "LCC-Win32", "",
@@ -2629,8 +2712,27 @@ void version(__G)
 #else /* !_MSC_VER, !__WATCOMC__, !__BORLANDC__, !__LCC__, !__GNUC__ */
       "unknown compiler (SDK?)", "",
 #endif /* ?compilers */
-
-      "\nWindows 9x / Windows NT/2K/XP/2K3", " (32-bit)",
+#ifdef _WIN64
+#  ifdef _IA64_
+      "\nWindows NT", " (Itanium)",
+#  elif defined _aarch64_
+      "\nWindows NT", " (ARM 64-bit)",
+#  else /* _AMD64_ */
+      "\nWindows NT", " (Intel 64-bit)",
+#  endif
+#else
+#  ifdef _MIPS_
+      "\nWindows NT", " (Jazz)",
+#  elif defined _ALPHA_
+      "\nWindows NT", " (Alpha AXP)",
+#  elif defined _PPC_
+      "\nWindows NT", " (PowerPC)",
+#  elif defined _ARM_
+      "\nWindows RT", " (ARM 32-bit)",
+#  else /* _i386_ */
+      "\nWindows 9x / NT", " (Intel 32-bit)",
+#  endif
+#endif
 
 #ifdef __DATE__
       " on ", __DATE__
