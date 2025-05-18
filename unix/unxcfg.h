@@ -52,6 +52,7 @@
 
 #include <sys/types.h>          /* off_t, time_t, dev_t, ... */
 #include <sys/stat.h>
+#include <unistd.h>
 
 #ifdef NO_OFF_T
   typedef long zoff_t;
@@ -117,7 +118,7 @@ typedef struct stat z_stat;
 #  endif
 #else
 #  include <time.h>
-   struct tm *gmtime(), *localtime();
+/*   struct tm *gmtime(), *localtime(); */
 #endif
 
 #if (defined(BSD4_4) || (defined(SYSV) && defined(MODERN)))
