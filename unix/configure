@@ -432,6 +432,8 @@ if [ $? -ne 0 ]; then
   done
   if [ ${OPT} ]; then
     LFLAGS2="${LFLAGS2} ${OPT}"
+  elif [ "$CC" == "clang" ]; then
+    CFLAGSR="${CFLAGSR}"
   else
     CFLAGSR="${CFLAGSR} -DNO_DIR"
   fi

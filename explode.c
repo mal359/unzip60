@@ -336,7 +336,7 @@ unsigned bdl;                   /* number of distance low bits */
 #ifndef NOMEMCPY
           if (w - d >= e)       /* (this test assumes unsigned comparison) */
           {
-            memcpy(redirSlide + w, redirSlide + d, e);
+            memmove(redirSlide + w, redirSlide + d, e);
             w += e;
             d += e;
           }
@@ -454,7 +454,7 @@ unsigned bdl;           /* number of distance low bits */
 #ifndef NOMEMCPY
           if (w - d >= e)       /* (this test assumes unsigned comparison) */
           {
-            memcpy(redirSlide + w, redirSlide + d, e);
+            memmove(redirSlide + w, redirSlide + d, e);
             w += e;
             d += e;
           }

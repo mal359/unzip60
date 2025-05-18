@@ -473,7 +473,11 @@ int UZinflate(__G__ is_defl64)
                     retval = 2;
                 } else {
                     /* output write failure */
+#ifdef FUNZIP
+                    retval = PK_DISK;
+#else
                     retval = (G.disk_full != 0 ? PK_DISK : IZ_CTRLC);
+#endif
                 }
             } else {
                 Trace((stderr, "oops!  (inflateBack9() err = %d)\n", err));
@@ -538,7 +542,11 @@ int UZinflate(__G__ is_defl64)
                     retval = 2;
                 } else {
                     /* output write failure */
+#ifdef FUNZIP
+                    retval = PK_DISK;
+#else
                     retval = (G.disk_full != 0 ? PK_DISK : IZ_CTRLC);
+#endif
                 }
             } else {
                 Trace((stderr, "oops!  (inflateBack() err = %d)\n", err));
@@ -1018,7 +1026,7 @@ unsigned bl, bd;        /* number of bits decoded by tl[] and td[] */
           if ((unsigned)w - d >= e)
           /* (this test assumes unsigned comparison) */
           {
-            memcpy(redirSlide + (unsigned)w, redirSlide + d, e);
+            memmove(redirSlide + (unsigned)w, redirSlide + d, e);
             w += e;
             d += e;
           }

@@ -707,6 +707,18 @@ modifiers:\n\
   -C  match filenames case-insensitively     -L  make (some) names \
 lowercase\n %-42s  -V  retain VMS version numbers\n%s";
 #else /* !VMS */
+#ifdef UNIX
+static ZCONST char Far UnzipUsageLine4[] = "\
+modifiers:\n\
+  -n  never overwrite existing files         -q  quiet mode (-qq => quieter)\n\
+  -o  overwrite files WITHOUT prompting      -a  auto-convert any text files\n\
+  -j  junk paths (do not make directories)   -aa treat ALL files as text\n\
+  -U  use escapes for all non-ASCII Unicode  -UU ignore any Unicode fields\n\
+  -C  match filenames case-insensitively     -L  make (some) names \
+lowercase\n %-42s  -V  retain VMS version numbers\n%s\n\
+  -O CHARSET  specify a character encoding for DOS, Windows and OS/2 archives\n\
+  -I CHARSET  specify a character encoding for UNIX and other archives\n\n";
+#else /* !UNIX */
 static ZCONST char Far UnzipUsageLine4[] = "\
 modifiers:\n\
   -n  never overwrite existing files         -q  quiet mode (-qq => quieter)\n\
@@ -714,6 +726,7 @@ modifiers:\n\
   -j  junk paths (do not make directories)   -aa treat ALL files as text\n\
   -C  match filenames case-insensitively     -L  make (some) names \
 lowercase\n %-42s  -V  retain VMS version numbers\n%s";
+#endif /* UNIX */
 #endif /* ?VMS */
 #endif /* ?UNICODE_SUPPORT */
 
@@ -763,6 +776,9 @@ int unzip(__G__ argc, argv)
     int i;
 #endif
     int retcode, error=FALSE;
+#ifdef UNIX
+    const char *loc;
+#endif
 #ifndef NO_EXCEPT_SIGNALS
 #ifdef REENTRANT
     savsigs_info *oldsighandlers = NULL;
@@ -777,7 +793,12 @@ int unzip(__G__ argc, argv)
 #endif /* NO_EXCEPT_SIGNALS */
 
     /* initialize international char support to the current environment */
+#ifdef UNIX
+    loc = SETLOCALE(LC_CTYPE,"");
+    init_conversion_charsets(loc);
+#else /* !UNIX */
     SETLOCALE(LC_CTYPE, "");
+#endif /* UNIX */
 
 #ifdef UNICODE_SUPPORT
     /* see if can use UTF-8 Unicode locale */
@@ -1366,6 +1387,11 @@ int uz_opts(__G__ pargc, pargv)
     extern int forcedCP;
 #endif
 
+#ifdef UNIX
+    extern char OEM_CP[MAX_CP_NAME];
+    extern char ISO_CP[MAX_CP_NAME];
+#endif
+    
     while (++argv, (--argc > 0 && *argv != NULL && **argv == '-')) {
         s = *argv + 1;
         while ((c = *s++) != 0) {    /* "!= 0":  prevent Turbo C warning */

@@ -42,12 +42,12 @@
 # such as -DDOSWILD).
 
 # UnZip flags
-CC = cc#	try using "gcc" target rather than changing this (CC and LD
+CC ?= cc#	try using "gcc" target rather than changing this (CC and LD
 LD = $(CC)#	must match, else "unresolved symbol:  ___main" is possible)
 AS = as
 LOC = $(D_USE_BZ2) $(LOCAL_UNZIP)
 AF = $(LOC)
-CFLAGS = -O
+CFLAGS ?= -O
 CF_NOOPT = -I. -I$(IZ_BZIP2) -DUNIX $(LOC)
 CF = $(CFLAGS) $(CF_NOOPT)
 LFLAGS1 =
@@ -547,6 +547,10 @@ generic:	flags	   # now try autoconfigure first
 generic_gcc:
 	$(MAKE) $(MAKEF) generic CC=gcc IZ_BZIP2="$(IZ_BZIP2)"
 
+generic_clang:
+	$(MAKE) $(MAKEF) generic CC=clang IZ_BZIP2="$(IZ_BZIP2)"
+
+
 # extensions to perform SVR4 package-creation after compilation
 generic_pkg:	generic svr4package
 generic_gccpkg:	generic_gcc svr4package
@@ -594,13 +598,13 @@ generic_shlib:	unix_make
 	@echo\
  'which is UnZip linked with the DLL).  This target is an example only.'
 	@echo ""
-	$(MAKE) objsdll CC=gcc CFLAGS="-O3 -Wall -fPIC -DDLL"
-	gcc -shared -Wl,-soname,libunzip.so.0 -o libunzip.so.0.4 $(OBJSDLL)
+	$(MAKE) objsdll CFLAGS="-O3 -Wall -fPIC -DDLL"
+	$(CC) -shared -Wl,-soname,libunzip.so.0 -o libunzip.so.0.4 $(OBJSDLL)
 	$(RM) libunzip.so.0 libunzip.so
 	$(LN) -s libunzip.so.0.4 libunzip.so.0
 	$(LN) -s libunzip.so.0 libunzip.so
-	gcc -c -O unzipstb.c
-	gcc -o unzip_shlib unzipstb.o -L. -lunzip
+	$(CC) -c -O unzipstb.c
+	$(CC) -o unzip_shlib unzipstb.o -L. -lunzip
 
 #----------------------------------------------------------------------------
 #  "Autoconfig" group, aliases for the generic targets using configure:
