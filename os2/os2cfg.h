@@ -30,6 +30,13 @@
 #  define PIPE_ERROR (errno == EERRSET || errno == EOS2ERR)
 #endif /* __IBMC__ */
 
+#ifdef __KLIBC__
+# define LARGE_FILE_SUPPORT
+# define ZIP64_SUPPORT
+#define ZOFF_T_DEFINED
+typedef long long    zoff_t;
+#endif
+
 #ifdef __WATCOMC__
 #  ifdef __386__
 #    ifndef WATCOMC_386
@@ -116,6 +123,9 @@
 #if (!defined(NOTIMESTAMP) && !defined(TIMESTAMP))
 #  define TIMESTAMP
 #endif
+#if (!defined(SET_DIR_ATTRIB) && defined(__KLIBC__))
+#  define SET_DIR_ATTRIB
+#endif
 
 /* check that TZ environment variable is defined before using UTC times */
 #if (!defined(NO_IZ_CHECK_TZ) && !defined(IZ_CHECK_TZ))
@@ -130,6 +140,7 @@
 #  define OS2_EAS    /* for -l and -v listings (list.c) */
 #endif
 
+#ifndef __KLIBC__
 #ifdef isupper
 #  undef isupper
 #endif
@@ -138,6 +149,8 @@
 #endif
 #define isupper(x)   IsUpperNLS((unsigned char)(x))
 #define tolower(x)   ToLowerNLS((unsigned char)(x))
+#endif // __KLIBC__
+
 #ifndef NO_STRNICMP     /* use UnZip's zstrnicmp(), because some compilers  */
 #  define NO_STRNICMP   /*  don't provide a NLS-aware strnicmp() function  */
 #endif
