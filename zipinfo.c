@@ -837,7 +837,7 @@ int zipinfo(__G)   /* return PK-type error code */
                 Info(slide, 0x401,
                      ((char *)slide, LoadFarString(CentSigMsg), j));
                 Info(slide, 0x401,
-                     ((char *)slide, LoadFarString(ReportMsg)));
+                     ((char *)slide,"%s", LoadFarString(ReportMsg)));
                 error_in_archive = PK_BADERR;   /* sig not found */
                 break;
             }
@@ -1026,7 +1026,8 @@ int zipinfo(__G)   /* return PK-type error code */
             && (!G.ecrec.is_zip64_archive)
             && (memcmp(G.sig, end_central_sig, 4) != 0)
            ) {          /* just to make sure again */
-            Info(slide, 0x401, ((char *)slide, LoadFarString(EndSigMsg)));
+            Info(slide, 0x401, 
+                 ((char *)slide,"%s", LoadFarString(EndSigMsg)));
             error_in_archive = PK_WARN;   /* didn't find sig */
         }
 
@@ -1947,7 +1948,7 @@ static int zi_short(__G)   /* return PK-type error code */
 #endif
     int         k, error, error_in_archive=PK_COOL;
     unsigned    hostnum, hostver, methid, methnum, xattr;
-    char        *p, workspace[12], attribs[16];
+    char        *p, workspace[12], attribs[17];
     char        methbuf[5];
     static ZCONST char dtype[5]="NXFS"; /* normal, maximum, fast, superfast */
     static ZCONST char Far os[NUM_HOSTS+1][4] = {

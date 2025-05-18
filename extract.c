@@ -629,8 +629,8 @@ int extract_or_test_files(__G)    /* return PK-type error code */
                      */
                     Info(slide, 0x401, ((char *)slide,
                       LoadFarString(CentSigMsg), j + blknum*DIR_BLKSIZ + 1));
-                    Info(slide, 0x401, ((char *)slide,
-                      LoadFarString(ReportMsg)));
+                    Info(slide, 0x401,
+                         ((char *)slide,"%s", LoadFarString(ReportMsg)));
                     error_in_archive = PK_BADERR;
                 }
                 reached_end = TRUE;     /* ...so no more left to do */
@@ -910,8 +910,8 @@ int extract_or_test_files(__G)    /* return PK-type error code */
 
 #ifndef SFX
     if (no_endsig_found) {                      /* just to make sure */
-        Info(slide, 0x401, ((char *)slide, LoadFarString(EndSigMsg)));
-        Info(slide, 0x401, ((char *)slide, LoadFarString(ReportMsg)));
+        Info(slide, 0x401, ((char *)slide,"%s", LoadFarString(EndSigMsg)));
+        Info(slide, 0x401, ((char *)slide,"%s", LoadFarString(ReportMsg)));
         if (!error_in_archive)       /* don't overwrite stronger error */
             error_in_archive = PK_WARN;
     }
@@ -2108,23 +2108,20 @@ static int extract_or_test_member(__G)    /* return PK-type error code */
 
 #ifdef VMS                  /* VMS:  required even for stdout! (final flush) */
     if (!uO.tflag)           /* don't close NULL file */
-        close_outfile(__G);
+        error = close_outfile(__G);
 #else
 #ifdef DLL
     if (!uO.tflag && (!uO.cflag || G.redirect_data)) {
         if (G.redirect_data)
             FINISH_REDIRECT();
         else
-            close_outfile(__G);
+            error = close_outfile(__G);
     }
 #else
     if (!uO.tflag && !uO.cflag)   /* don't close NULL file or stdout */
-        close_outfile(__G);
+        error = close_outfile(__G);
 #endif
 #endif /* VMS */
-
-            /* GRR: CONVERT close_outfile() TO NON-VOID:  CHECK FOR ERRORS! */
-
 
     if (G.disk_full) {            /* set by flush() */
         if (G.disk_full > 1) {
@@ -2227,6 +2224,7 @@ static int TestExtraField(__G__ ef, ef_len)
     unsigned ebLen;
     unsigned eb_cmpr_offs = 0;
     int r;
+    ush method;
 
     /* we know the regular compressed file data tested out OK, or else we
      * wouldn't be here ==> print filename if any extra-field errors found
@@ -2463,6 +2461,12 @@ static int test_compr_eb(__G__ eb, eb_size, compr_offset, test_uc_ebdata)
     if ((eb_compr_method == STORED) &&
      (eb_size != compr_offset + EB_CMPRHEADLEN + eb_ucsize))
         return PK_ERR;
+
+    method = makeword(eb + (EB_HEADSIZE + compr_offset));
+    if ((method == STORED) && (eb_size != compr_offset + EB_CMPRHEADLEN + eb_ucsize))
+        return PK_ERR;            /* compressed & uncompressed
+                                   * should match in STORED
+                                   * method */
 
     if (
 #ifdef INT_16BIT

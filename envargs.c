@@ -118,7 +118,7 @@ int envargs(Pargc, Pargv, envstr, envstr2)
 
             /* remove escape characters */
             while ((argstart = MBSCHR(argstart, '\\')) != (char *)NULL) {
-                strcpy(argstart, argstart + 1);
+                memmove(argstart, argstart + 1, strlen(argstart + 1) + 1);
                 if (*argstart)
                     ++argstart;
             }
