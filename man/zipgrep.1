@@ -32,9 +32,9 @@ The pattern to be located within a ZIP archive.  Any string or regular
 expression accepted by \fIegrep\fP(1) may be used.
 .IR file [ .zip ]
 Path of the ZIP archive.  (Wildcard expressions for the ZIP archive name are
-not supported.)  If the literal filename is not found, the suffix \fC.zip\fR
+not supported.)  If the literal filename is not found, the suffix .zip
 is appended.  Note that self-extracting ZIP files are supported, as with any
-other ZIP archive; just specify the \fC.exe\fR suffix (if any) explicitly.
+other ZIP archive; just specify the .exe suffix (if any) explicitly.
 .IP [\fIfile(s)\fP]
 An optional list of archive members to be processed, separated by spaces.
 If no member files are specified, all members of the ZIP archive are searched.
@@ -58,7 +58,7 @@ modified by the operating system.)
 An optional list of archive members to be excluded from processing.
 Since wildcard characters match directory separators (`/'), this option
 may be used to exclude any files that are in subdirectories.  For
-example, ``\fCzipgrep grumpy foo *.[ch] -x */*\fR'' would search for the
+example, ``zipgrep grumpy foo *.[ch] -x */*'' would search for the
 string ``grumpy'' in all C source files in the main directory of the ``foo''
 archive, but none in any subdirectories.  Without the \fB\-x\fP
 option, all C source files in all directories within the zipfile would be
@@ -76,11 +76,11 @@ All options prior to the ZIP archive filename are passed to \fIegrep\fP(1).
 .SH URL
 The Info-ZIP home page is currently at
 .EX
-\fChttp://www.info-zip.org/pub/infozip/\fR
+http://www.info-zip.org/pub/infozip/
 .EE
 or
 .EX
-\fCftp://ftp.info-zip.org/pub/infozip/\fR .
+ftp://ftp.info-zip.org/pub/infozip/ .
 .EE
 .PD
 .\" =========================================================================

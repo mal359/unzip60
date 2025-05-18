@@ -174,8 +174,8 @@ typedef struct stat z_stat;
 #endif
 #ifndef NO_SETLOCALE
 # if (!defined(NO_WORKING_ISPRINT) && !defined(HAVE_WORKING_ISPRINT))
-   /* enable "enhanced" unprintable chars detection in fnfilter() */
-#  define HAVE_WORKING_ISPRINT
+   /* disable "enhanced" unprintable chars detection in fnfilter() */
+#  define NO_WORKING_ISPRINT
 # endif
 #endif
 
@@ -227,5 +227,31 @@ typedef struct stat z_stat;
 /* rootlen, rootpath, buildpath and end are used by checkdir().        */
 /* wild_dir, dirname, wildname, matchname[], dirnamelen, have_dirname, */
 /*    and notfirstcall are used by do_wild().                          */
+
+
+#define MAX_CP_NAME 25
+
+#ifdef SETLOCALE
+#  undef SETLOCALE
+#endif
+#define SETLOCALE(category, locale) setlocale(category, locale)
+#include <locale.h>
+
+#ifdef _ISO_INTERN
+#  undef _ISO_INTERN
+#endif
+#define _ISO_INTERN(str1) iso_intern(str1)
+
+#ifdef _OEM_INTERN
+#  undef _OEM_INTERN
+#endif
+#ifndef IZ_OEM2ISO_ARRAY
+#  define IZ_OEM2ISO_ARRAY
+#endif
+#define _OEM_INTERN(str1) oem_intern(str1)
+
+void iso_intern(char *);
+void oem_intern(char *);
+void init_conversion_charsets(void);
 
 #endif /* !__unxcfg_h */

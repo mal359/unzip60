@@ -89,7 +89,7 @@ modified by the operating system, particularly under Unix and VMS.)
 An optional list of archive members to be excluded from processing.
 Since wildcard characters match directory separators (`/'), this option
 may be used to exclude any files that are in subdirectories.  For
-example, ``\fCfoosfx *.[ch] -x */*\fR'' would extract all C source files
+example, ``foosfx *.[ch] -x */*'' would extract all C source files
 in the main directory, but none in any subdirectories.  Without the \fB\-x\fP
 option, all C source files in all directories within the zipfile would be
 extracted.
@@ -103,8 +103,8 @@ option allows extraction in an arbitrary directory (always assuming one
 has permission to write to the directory).  The option and directory may
 be concatenated without any white space between them, but note that this
 may cause normal shell behavior to be suppressed.  In particular,
-``\fC\-d\ ~\fR'' (tilde) is expanded by Unix C shells into the name
-of the user's home directory, but ``\fC\-d~\fR'' is treated as a
+``\-d\ ~'' (tilde) is expanded by Unix C shells into the name
+of the user's home directory, but ``\-d~'' is treated as a
 literal subdirectory ``\fB~\fP'' of the current directory.
 .PD
 .\" =========================================================================
@@ -213,7 +213,7 @@ MakeSFX letters letters.zip UnZipSFX
 .EE
 .PP
 (MakeSFX is included with the UnZip source distribution and with Amiga
-binary distributions.  ``\fCzip -A\fR'' doesn't work on Amiga self-extracting
+binary distributions.  ``zip -A'' doesn't work on Amiga self-extracting
 archives.)
 To test (or list) the newly created self-extracting archive:
 .PP
@@ -235,13 +235,13 @@ files and subdirectories as necessary:
 letters
 .EE
 .PP
-To extract all \fC*.txt\fR files (in Unix quote the `*'):
+To extract all *.txt files (in Unix quote the `*'):
 .PP
 .EX
 letters *.txt
 .EE
 .PP
-To extract everything \fIexcept\fP the \fC*.txt\fR files:
+To extract everything \fIexcept\fP the *.txt files:
 .PP
 .EX
 letters -x *.txt
@@ -295,7 +295,7 @@ relevant to those who create SFX archives, however.
 VMS users must know how to set up self-extracting archives as foreign
 commands in order to use any of \fIunzipsfx\fP's options.  This is not
 necessary for simple extraction, but the command to do so then becomes,
-e.g., ``\fCrun letters\fR'' (to continue the examples given above).
+e.g., ``run letters'' (to continue the examples given above).
 .PP
 \fIunzipsfx\fP on the Amiga requires the use of a special program, MakeSFX,
 in order to create working self-extracting archives; simple concatenation
@@ -320,11 +320,11 @@ All current bugs in \fIunzip\fP(1) exist in \fIunzipsfx\fP as well.
 .SH URL
 The Info-ZIP home page is currently at
 .EX
-\fChttp://www.info-zip.org/pub/infozip/\fR
+http://www.info-zip.org/pub/infozip/
 .EE
 or
 .EX
-\fCftp://ftp.info-zip.org/pub/infozip/\fR .
+ftp://ftp.info-zip.org/pub/infozip/ .
 .EE
 .PD
 .\" =========================================================================

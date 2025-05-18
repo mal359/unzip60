@@ -2144,9 +2144,15 @@ int do_string(__G__ length, option)   /* return PK-type error code */
                 /* translate the text coded in the entry's host-dependent
                    "extended ASCII" charset into the compiler's (system's)
                    internal text code page */
-                Ext_ASCII_TO_Native((char *)G.outbuf, G.pInfo->hostnum,
-                                    G.pInfo->hostver, G.pInfo->HasUxAtt,
-                                    FALSE);
+#if (defined(UNICODE_SUPPORT) && defined(UTF8_MAYBE_NATIVE))
+                if (!G.pInfo->GPFIsUTF8 || !G.native_is_utf8) {
+#endif
+                        Ext_ASCII_TO_Native((char *)G.outbuf, G.pInfo->hostnum,
+                                            G.pInfo->hostver, G.pInfo->HasUxAtt,
+                                            FALSE);
+#if (defined(UNICODE_SUPPORT) && defined(UTF8_MAYBE_NATIVE))
+                }
+#endif
 #ifdef WINDLL
                 /* translate to ANSI (RTL internal codepage may be OEM) */
                 INTERN_TO_ISO((char *)G.outbuf, (char *)G.outbuf);
@@ -2258,8 +2264,14 @@ int do_string(__G__ length, option)   /* return PK-type error code */
 
         /* translate the Zip entry filename coded in host-dependent "extended
            ASCII" into the compiler's (system's) internal text code page */
-        Ext_ASCII_TO_Native(G.filename, G.pInfo->hostnum, G.pInfo->hostver,
-                            G.pInfo->HasUxAtt, (option == DS_FN_L));
+#if (defined(UNICODE_SUPPORT) && defined(UTF8_MAYBE_NATIVE))
+        if (!G.pInfo->GPFIsUTF8 || !G.native_is_utf8) {
+#endif
+            Ext_ASCII_TO_Native(G.filename, G.pInfo->hostnum, G.pInfo->hostver,
+                                G.pInfo->HasUxAtt, (option == DS_FN_L));
+#if (defined(UNICODE_SUPPORT) && defined(UTF8_MAYBE_NATIVE))
+        }
+#endif
 
         if (G.pInfo->lcflag)      /* replace with lowercase filename */
             STRLOWER(G.filename, G.filename);
@@ -2310,8 +2322,11 @@ int do_string(__G__ length, option)   /* return PK-type error code */
             seek_zipf(__G__ G.cur_zipfile_bufstart - G.extra_bytes +
                       (G.inptr-G.inbuf) + length);
         } else {
-            if (readbuf(__G__ (char *)G.extra_field, length) == 0)
+            unsigned bytes_read = readbuf(__G__ (char *)G.extra_field, length);
+            if (bytes_read == 0)
                 return PK_EOF;
+            if (bytes_read != length)
+                return PK_ERR;
             /* Looks like here is where extra fields are read */
             if (getZip64Data(__G__ G.extra_field, length) != PK_COOL)
             {

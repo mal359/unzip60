@@ -65,9 +65,9 @@ verbatim left bracket, the three-character sequence ``[[]'' has to be used.
 (Be sure to quote any character that might otherwise be interpreted or
 modified by the operating system, particularly under Unix and VMS.)  If no
 matches are found, the specification is assumed to be a literal filename;
-and if that also fails, the suffix \fC.zip\fR is appended.  Note that
+and if that also fails, the suffix .zip is appended.  Note that
 self-extracting ZIP files are supported, as with any other ZIP archive;
-just specify the \fC.exe\fR suffix (if any) explicitly.
+just specify the .exe suffix (if any) explicitly.
 .IP [\fIfile(s)\fP]
 An optional list of archive members to be processed, separated by spaces.
 (VMS versions compiled with VMSCLI defined must delimit files with commas
@@ -80,7 +80,7 @@ An optional list of archive members to be excluded from processing.
 Since wildcard characters normally match (`/') directory separators
 (for exceptions see the option \fB\-W\fP), this option may be used
 to exclude any files that are in subdirectories.  For
-example, ``\fCunzip foo *.[ch] -x */*\fR'' would extract all C source files
+example, ``unzip foo *.[ch] -x */*'' would extract all C source files
 in the main directory, but none in any subdirectories.  Without the \fB\-x\fP
 option, all C source files in all directories within the zipfile would be
 extracted.
@@ -94,8 +94,8 @@ specification (with the normal options), immediately after the zipfile
 specification, or between the \fIfile(s)\fP and the \fB\-x\fP option.
 The option and directory may be concatenated without any white space
 between them, but note that this may cause normal shell behavior to be
-suppressed.  In particular, ``\fC\-d\ ~\fR'' (tilde) is expanded by Unix
-C shells into the name of the user's home directory, but ``\fC\-d~\fR''
+suppressed.  In particular, ``\-d\ ~'' (tilde) is expanded by Unix
+C shells into the name of the user's home directory, but ``\-d~''
 is treated as a literal subdirectory ``\fB~\fP'' of the current directory.
 .\" =========================================================================
 .SH OPTIONS
@@ -156,7 +156,7 @@ the expanded file with the original file's stored CRC value.
 .B \-T
 [most OSes] set the timestamp on the archive(s) to that of the newest file
 in each one.  This corresponds to \fIzip\fP's \fB\-go\fP option except that
-it can be used on wildcard zipfiles (e.g., ``\fCunzip \-T \e*.zip\fR'') and
+it can be used on wildcard zipfiles (e.g., ``unzip \-T \e*.zip'') and
 is much faster.
 .TP
 .B \-u
@@ -180,7 +180,7 @@ encryption status and show the correct compression performance.  (The complete
 size of the encrypted compressed data stream for zipfile entries is reported
 by the more verbose \fIzipinfo\fP(1) reports, see the separate manual.)
 When no zipfile is specified (that is, the complete command is simply
-``\fCunzip \-v\fR''), a diagnostic screen is printed.  In addition to
+``unzip \-v''), a diagnostic screen is printed.  In addition to
 the normal header with release date and version, \fIunzip\fP lists the
 home Info-ZIP ftp site and where to find a list of other ftp and non-ftp
 sites; the target operating system for which it was compiled, as well
@@ -212,7 +212,7 @@ EOF.  In addition, IBM mainframes and the Michigan Terminal System use EBCDIC
 rather than the more common ASCII character set, and NT supports Unicode.)
 Note that \fIzip\fP's identification of text files is by no means perfect; some
 ``text'' files may actually be binary and vice versa.  \fIunzip\fP therefore
-prints ``\fC[text]\fR'' or ``\fC[binary]\fR'' as a visual check for each file
+prints ``[text]'' or ``[binary]'' as a visual check for each file
 it extracts when using the \fB\-a\fP option.  The \fB\-aa\fP option forces
 all files to be extracted as text, regardless of the supposed file type.
 On VMS, see also \fB\-S\fP.
@@ -246,14 +246,14 @@ existing backup files are deleted without notice.
 This feature works similarly to the default behavior of \fIemacs\fP(1)
 in many locations.
 .IP
-Example: the old copy of ``\fCfoo\fR'' is renamed to ``\fCfoo~\fR''.
+Example: the old copy of ``foo'' is renamed to ``foo~''.
 .IP
 Warning: Users should be aware that the \fB-B\fP option does not prevent
 loss of existing data under all circumstances.  For example, when
-\fIunzip\fP is run in overwrite-all mode, an existing ``\fCfoo~\fR'' file
-is deleted before \fIunzip\fP attempts to rename ``\fCfoo\fR'' to
-``\fCfoo~\fR''.  When this rename attempt fails (because of a file locks,
-insufficient privileges, or ...), the extraction of ``\fCfoo~\fR'' gets
+\fIunzip\fP is run in overwrite-all mode, an existing ``foo~'' file
+is deleted before \fIunzip\fP attempts to rename ``foo'' to
+``foo~''.  When this rename attempt fails (because of a file locks,
+insufficient privileges, or ...), the extraction of ``foo~'' gets
 cancelled, but the old backup file is already lost.  A similar scenario
 takes place when the sequence number range for numbered backup files gets
 exhausted (99999, or 65535 for 16-bit systems).  In this case, the backup
@@ -269,15 +269,15 @@ options below).  Because some file systems are fully case-sensitive
 (notably those under the Unix operating system) and because
 both ZIP archives and \fIunzip\fP itself are portable across platforms,
 \fIunzip\fP's default behavior is to match both wildcard and literal
-filenames case-sensitively.  That is, specifying ``\fCmakefile\fR''
+filenames case-sensitively.  That is, specifying ``makefile''
 on the command line will \fIonly\fP match ``makefile'' in the archive,
 not ``Makefile'' or ``MAKEFILE'' (and similarly for wildcard specifications).
 Since this does not correspond to the behavior of many other
 operating/file systems (for example, OS/2 HPFS, which preserves
 mixed case but is not sensitive to it), the \fB\-C\fP option may be
 used to force all filename matches to be case-insensitive.  In the
-example above, all three files would then match ``\fCmakefile\fR''
-(or ``\fCmake*\fR'', or similar).  The \fB\-C\fP option affects
+example above, all three files would then match ``makefile''
+(or ``make*'', or similar).  The \fB\-C\fP option affects
 file specs in both the normal file list and the excluded-file list (xlist).
 .IP
 Please note that the \fB\-C\fP option does neither affect the search for
@@ -325,6 +325,8 @@ extension, it is replaced by the info from the extra field.)
 [MacOS only] ignore filenames stored in MacOS extra fields. Instead, the
 most compatible filename stored in the generic part of the entry's header
 is used.
+.IP \fB\-I\fP\ \fICHARSET\fP
+[UNIX only] Specify a character encoding for UNIX and other archives.
 .TP
 .B \-j
 junk paths.  The archive's directory structure is not recreated; all files
@@ -386,6 +388,8 @@ of \fIzip\fP(1), which stores filenotes as comments.
 overwrite existing files without prompting.  This is a dangerous option, so
 use it with care.  (It is often used with \fB\-f\fP, however, and is the only
 way to overwrite directory EAs under OS/2.)
+.IP \fB\-O\fP\ \fICHARSET\fP
+[UNIX only] Specify a character encoding for DOS, Windows and OS/2 archives.
 .IP \fB\-P\fP\ \fIpassword\fP
 use \fIpassword\fP to decrypt encrypted zipfile entries (if any).  \fBTHIS IS
 INSECURE!\fP  Many multi-user operating systems provide ways for any user to
@@ -407,7 +411,7 @@ options suppress the printing of some or all of these messages.
 .B \-s
 [OS/2, NT, MS-DOS] convert spaces in filenames to underscores.  Since all PC
 operating systems allow spaces in filenames, \fIunzip\fP by default extracts
-filenames with spaces intact (e.g., ``\fCEA\ DATA.\ SF\fR'').  This can be
+filenames with spaces intact (e.g., ``EA\ DATA.\ SF'').  This can be
 awkward, however, since MS-DOS in particular does not gracefully support
 spaces in filenames.  Conversion of spaces to underscores can eliminate the
 awkwardness in some cases.
@@ -436,7 +440,7 @@ created under MS-DOS, VMS, etc.  See \fB\-L\fP above.
 .TP
 .B \-V
 retain (VMS) file version numbers.  VMS files can be stored with a version
-number, in the format \fCfile.ext;##\fR.  By default the ``\fC;##\fR'' version
+number, in the format file.ext;##.  By default the ``;##'' version
 numbers are stripped, but this option allows them to be retained.  (On
 file systems that limit filenames to particularly short lengths, the version
 numbers may be truncated or stripped regardless of this option.)
@@ -625,7 +629,7 @@ both inside and outside the US.
 Some compiled versions of \fIunzip\fP may not support decryption.
 To check a version for crypt support, either attempt to test or extract
 an encrypted archive, or else check \fIunzip\fP's diagnostic
-screen (see the \fB\-v\fP option above) for ``\fC[decryption]\fR'' as one
+screen (see the \fB\-v\fP option above) for ``[decryption]'' as one
 of the special compilation options.
 .PP
 As noted above, the \fB\-P\fP option may be used to supply a password on
@@ -783,7 +787,7 @@ To do a doubly quiet listing:
 unzip \-ql file.zip
 .EE
 .PP
-(Note that the ``\fC.zip\fR'' is generally not necessary.)  To do a standard
+(Note that the ``.zip'' is generally not necessary.)  To do a standard
 listing:
 .PP
 .EX
@@ -802,16 +806,16 @@ unzip \-l\-\-q file.zip
 .\" =========================================================================
 .SH TIPS
 The current maintainer, being a lazy sort, finds it very useful to define
-a pair of aliases:  \fCtt\fR for ``\fCunzip \-tq\fR'' and \fCii\fR for
-``\fCunzip \-Z\fR'' (or ``\fCzipinfo\fR'').  One may then simply type
-``\fCtt zipfile\fR'' to test an archive, something that is worth making a
-habit of doing.  With luck \fIunzip\fP will report ``\fCNo errors detected
-in compressed data of zipfile.zip\fR,'' after which one may breathe a sigh
+a pair of aliases:  tt for ``unzip \-tq'' and ii for
+``unzip \-Z'' (or ``zipinfo'').  One may then simply type
+``tt zipfile'' to test an archive, something that is worth making a
+habit of doing.  With luck \fIunzip\fP will report ``No errors detected
+in compressed data of zipfile.zip,'' after which one may breathe a sigh
 of relief.
 .PP
 The maintainer also finds it useful to set the UNZIP environment variable
-to ``\fC\-aL\fR'' and is tempted to add ``\fC\-C\fR'' as well.  His ZIPINFO
-variable is set to ``\fC\-z\fR''.
+to ``\-aL'' and is tempted to add ``\-C'' as well.  His ZIPINFO
+variable is set to ``\-z''.
 .PD
 .\" =========================================================================
 .SH DIAGNOSTICS
@@ -878,11 +882,11 @@ status means.
 .SH BUGS
 Multi-part archives are not yet supported, except in conjunction with
 \fIzip\fP.  (All parts must be concatenated together in order, and then
-``\fCzip \-F\fR'' (for \fIzip 2.x\fP) or ``\fCzip \-FF\fR'' (for
+``zip \-F'' (for \fIzip 2.x\fP) or ``zip \-FF'' (for
 \fIzip 3.x\fP) must be performed on the concatenated archive in order to
 ``fix'' it.  Also, \fIzip 3.0\fP and later can combine multi-part (split)
-archives into a combined single-file archive using ``\fCzip \-s\- inarchive
--O outarchive\fR''.  See the \fIzip 3\fP manual page for more information.)
+archives into a combined single-file archive using ``zip \-s\- inarchive
+-O outarchive''.  See the \fIzip 3\fP manual page for more information.)
 This will definitely be corrected in the next major release.
 .PP
 Archives read from standard input are not yet supported, except with
@@ -929,7 +933,7 @@ with them, \fIunzip\fP has no way to determine whether the stored attributes
 are newer or older than those on disk.  In practice this may mean a two-pass
 approach is required:  first unpack the archive normally (with or without
 freshening/updating existing files), then overwrite just the directory entries
-(e.g., ``\fCunzip -o foo */\fR'').
+(e.g., ``unzip -o foo */'').
 .PP
 [VMS] When extracting to another directory, only the \fI[.foo]\fP syntax is
 accepted for the \fB\-d\fP option; the simple Unix \fIfoo\fP syntax is
@@ -950,11 +954,11 @@ deleted.
 .SH URL
 The Info-ZIP home page is currently at
 .EX
-\fChttp://www.info-zip.org/pub/infozip/\fR
+http://www.info-zip.org/pub/infozip/
 .EE
 or
 .EX
-\fCftp://ftp.info-zip.org/pub/infozip/\fR .
+ftp://ftp.info-zip.org/pub/infozip/ .
 .EE
 .PD
 .\" =========================================================================

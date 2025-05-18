@@ -54,7 +54,7 @@ system or file system of compressing program, and the like.  The default
 behavior (with no options) is
 to list single-line entries for each file in the archive, with header and
 trailer lines providing summary information for the entire archive.  The
-format is a cross between Unix ``\fCls \-l\fR'' and ``\fCunzip \-v\fR''
+format is a cross between Unix ``ls \-l'' and ``unzip \-v''
 output.  See
 .B "DETAILED DESCRIPTION"
 below.  Note that \fIzipinfo\fP is the same program as \fIunzip\fP (under
@@ -87,9 +87,9 @@ verbatim left bracket, the three-character sequence ``[[]'' has to be used.
 (Be sure to quote any character that might otherwise be interpreted or
 modified by the operating system, particularly under Unix and VMS.)  If no
 matches are found, the specification is assumed to be a literal filename;
-and if that also fails, the suffix \fC.zip\fR is appended.  Note that
+and if that also fails, the suffix .zip is appended.  Note that
 self-extracting ZIP files are supported, as with any other ZIP archive;
-just specify the \fC.exe\fR suffix (if any) explicitly.
+just specify the .exe suffix (if any) explicitly.
 .IP [\fIfile(s)\fP]
 An optional list of archive members to be processed, separated by spaces.
 (VMS versions compiled with VMSCLI defined must delimit files with commas
@@ -113,16 +113,16 @@ list filenames only, one per line, but allow headers (\fB\-h\fP), trailers
 useful in cases where the stored filenames are particularly long.
 .TP
 .B \-s
-list zipfile info in short Unix ``\fCls \-l\fR'' format.  This is the default
+list zipfile info in short Unix ``ls \-l'' format.  This is the default
 behavior; see below.
 .TP
 .B \-m
-list zipfile info in medium Unix ``\fCls \-l\fR'' format.  Identical to the
+list zipfile info in medium Unix ``ls \-l'' format.  Identical to the
 \fB\-s\fP output, except that the compression factor, expressed as a
 percentage, is also listed.
 .TP
 .B \-l
-list zipfile info in long Unix ``\fCls \-l\fR'' format.  As with \fB\-m\fP
+list zipfile info in long Unix ``ls \-l'' format.  As with \fB\-m\fP
 except that the compressed size (in bytes) is printed instead of the
 compression ratio.
 .TP
@@ -174,6 +174,10 @@ back to the behaviour of previous versions.
 .TP
 .B \-z
 include the archive comment (if any) in the listing.
+.IP \fB\-I\fP\ \fICHARSET\fP
+[UNIX only] Specify a character encoding for UNIX and other archives.
+.IP \fB\-O\fP\ \fICHARSET\fP
+[UNIX only] Specify a character encoding for DOS, Windows and OS/2 archives.
 .PD
 .\" =========================================================================
 .SH "DETAILED DESCRIPTION"
@@ -290,7 +294,7 @@ total number of files; the trailer gives the number of files listed,
 their total uncompressed size, and their total compressed size (not
 including any of \fIzip\fP's internal overhead).  If, however, one or
 more \fIfile(s)\fP are provided, the header and trailer lines are
-not listed.  This behavior is also similar to that of Unix's ``\fCls \-l\fR'';
+not listed.  This behavior is also similar to that of Unix's ``ls \-l'';
 it may be overridden by specifying the \fB\-h\fP and \fB\-t\fP options
 explicitly.
 In such a case the listing format must also be specified explicitly,
@@ -330,7 +334,7 @@ explicit options given by the user, which can override or add to
 either of the above.
 .PP
 The default listing format, as noted above, corresponds roughly
-to the "\fCzipinfo \-hst\fR" command (except when individual zipfile members
+to the "zipinfo \-hst" command (except when individual zipfile members
 are specified).
 A user who prefers the long-listing format (\fB\-l\fP) can make use of the
 \fIzipinfo\fP's environment variable to change this default:
@@ -351,7 +355,7 @@ VMS (quotes for \fIlowercase\fP):
 If, in addition, the user dislikes the trailer line, \fIzipinfo\fP's
 concept of ``negative options'' may be used to override the default
 inclusion of the line.  This is accomplished by preceding the undesired
-option with one or more minuses:  e.g., ``\fC\-l\-t\fR'' or ``\fC\-\-tl\fR'',
+option with one or more minuses:  e.g., ``\-l\-t'' or ``\-\-tl'',
 in this example.  The first hyphen is the regular switch character, but the
 one before the `t' is a minus sign.  The dual use of hyphens may seem a
 little awkward, but it's reasonably intuitive nonetheless:  simply ignore
@@ -503,11 +507,11 @@ be simplified.  (This is not to say that it will be.)
 .SH URL
 The Info-ZIP home page is currently at
 .EX
-\fChttp://www.info-zip.org/pub/infozip/\fR
+http://www.info-zip.org/pub/infozip/
 .EE
 or
 .EX
-\fCftp://ftp.info-zip.org/pub/infozip/\fR .
+ftp://ftp.info-zip.org/pub/infozip/ .
 .EE
 .PD
 .\" =========================================================================

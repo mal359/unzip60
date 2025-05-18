@@ -327,11 +327,21 @@ static ZCONST char Far ZipInfoUsageLine2[] = "\nmain\
   -2  just filenames but allow -h/-t/-z  -l  long Unix \"ls -l\" format\n\
                                          -v  verbose, multi-page format\n";
 
+#ifndef UNIX
 static ZCONST char Far ZipInfoUsageLine3[] = "miscellaneous options:\n\
   -h  print header line       -t  print totals for listed files or for all\n\
-  -z  print zipfile comment   -T  print file times in sortable decimal format\
-\n  -C  be case-insensitive   %s\
+  -z  print zipfile comment   -T  print file times in sortable decimal format\n\
+  -C  be case-insensitive     %s\
   -x  exclude filenames that follow from listing\n";
+#else /* UNIX */
+static ZCONST char Far ZipInfoUsageLine3[] = "miscellaneous options:\n\
+  -h  print header line       -t  print totals for listed files or for all\n\
+  -z  print zipfile comment   -T  print file times in sortable decimal format\n\
+  -C  be case-insensitive   %s\
+  -x  exclude filenames that follow from listing\n\
+  -O CHARSET  specify a character encoding for DOS, Windows and OS/2 archives\n\
+  -I CHARSET  specify a character encoding for UNIX and other archives\n";
+#endif /* !UNIX */
 #ifdef MORE
    static ZCONST char Far ZipInfoUsageLine4[] =
      "  -M  page output through built-in \"more\"\n";
@@ -665,6 +675,17 @@ modifiers:\n\
   -U  use escapes for all non-ASCII Unicode  -UU ignore any Unicode fields\n\
   -C  match filenames case-insensitively     -L  make (some) names \
 lowercase\n %-42s  -V  retain VMS version numbers\n%s";
+#elif (defined UNIX)
+static ZCONST char Far UnzipUsageLine4[] = "\
+modifiers:\n\
+  -n  never overwrite existing files         -q  quiet mode (-qq => quieter)\n\
+  -o  overwrite files WITHOUT prompting      -a  auto-convert any text files\n\
+  -j  junk paths (do not make directories)   -aa treat ALL files as text\n\
+  -U  use escapes for all non-ASCII Unicode  -UU ignore any Unicode fields\n\
+  -C  match filenames case-insensitively     -L  make (some) names \
+lowercase\n %-42s  -V  retain VMS version numbers\n%s\
+  -O CHARSET  specify a character encoding for DOS, Windows and OS/2 archives\n\
+  -I CHARSET  specify a character encoding for UNIX and other archives\n\n";
 #else /* !VMS */
 static ZCONST char Far UnzipUsageLine4[] = "\
 modifiers:\n\
@@ -802,6 +823,10 @@ int unzip(__G__ argc, argv)
     G.unipath_filename = NULL;
 #endif /* UNICODE_SUPPORT */
 
+
+#ifdef UNIX
+    init_conversion_charsets();
+#endif
 
 #if (defined(__IBMC__) && defined(__DEBUG_ALLOC__))
     extern void DebugMalloc(void);
@@ -1336,6 +1361,11 @@ int uz_opts(__G__ pargc, pargv)
     argc = *pargc;
     argv = *pargv;
 
+#ifdef UNIX
+    extern char OEM_CP[MAX_CP_NAME];
+    extern int forcedCP;
+#endif
+
     while (++argv, (--argc > 0 && *argv != NULL && **argv == '-')) {
         s = *argv + 1;
         while ((c = *s++) != 0) {    /* "!= 0":  prevent Turbo C warning */
@@ -1517,6 +1547,37 @@ int uz_opts(__G__ pargc, pargv)
                     }
                     break;
 #endif  /* MACOS */
+#ifdef UNIX
+    			case ('I'):
+                    if (negative) {
+                        Info(slide, 0x401, ((char *)slide,
+                          "error:  encodings can't be negated"));
+                        return(PK_PARAM);
+    				} else {
+    					if(*s) { /* Handle the -Icharset case */
+    						/* Assume that charsets can't start with a dash to spot arguments misuse */
+    						if(*s == '-') {
+    	                        Info(slide, 0x401, ((char *)slide,
+        		                  "error:  a valid character encoding should follow the -I argument"));
+    	                        return(PK_PARAM);
+    						}
+    						strncpy(OEM_CP, s, sizeof(OEM_CP));
+    						forcedCP = 1;
+    					} else { /* -I charset */
+    						++argv;
+    						if(!(--argc > 0 && *argv != NULL && **argv != '-')) {
+    	                        Info(slide, 0x401, ((char *)slide,
+        		                  "error:  a valid character encoding should follow the -I argument"));
+    	                        return(PK_PARAM);
+    						}
+    						s = *argv;
+    						strncpy(OEM_CP, s, sizeof(OEM_CP));
+    						forcedCP = 1;
+    					}
+    					while(*(++s)); /* No params straight after charset name */
+    				}
+    				break;
+#endif /* ?UNIX */
                 case ('j'):    /* junk pathnames/directory structure */
                     if (negative)
                         uO.jflag = FALSE, negative = 0;
@@ -1592,6 +1653,37 @@ int uz_opts(__G__ pargc, pargv)
                     } else
                         ++uO.overwrite_all;
                     break;
+#ifdef UNIX
+    			case ('O'):
+                    if (negative) {
+                        Info(slide, 0x401, ((char *)slide,
+                          "error:  encodings can't be negated"));
+                        return(PK_PARAM);
+    				} else {
+    					if(*s) { /* Handle the -Ocharset case */
+    						/* Assume that charsets can't start with a dash to spot arguments misuse */
+    						if(*s == '-') {
+    	                        Info(slide, 0x401, ((char *)slide,
+        		                  "error:  a valid character encoding should follow the -I argument"));
+    	                        return(PK_PARAM);
+    						}
+    						strncpy(OEM_CP, s, sizeof(OEM_CP));
+    						forcedCP = 1;
+    					} else { /* -O charset */
+    						++argv;
+    						if(!(--argc > 0 && *argv != NULL && **argv != '-')) {
+    	                        Info(slide, 0x401, ((char *)slide,
+        		                  "error:  a valid character encoding should follow the -O argument"));
+    	                        return(PK_PARAM);
+    						}
+    						s = *argv;
+    						strncpy(OEM_CP, s, sizeof(OEM_CP));
+    						forcedCP = 1;
+    					}
+    					while(*(++s)); /* No params straight after charset name */
+    				}
+    				break;
+#endif /* ?UNIX */
                 case ('p'):    /* pipes:  extract to stdout, no messages */
                     if (negative) {
                         uO.cflag = FALSE;
@@ -2163,6 +2255,7 @@ static void help_extended(__G)
   "         ACORN_FTYPE_NFS] Translate filetype and append to name.",
   "  -i   [MacOS] Ignore filenames in MacOS extra field.  Instead, use name in",
   "         standard header.",
+  "  -I CHARSET  [UNIX] Specify a character encoding for UNIX and other archives.",
   "  -j   Junk paths and deposit all files in extraction directory.",
   "  -J   [BeOS] Junk file attributes.  [MacOS] Ignore MacOS specific info.",
   "  -K   [AtheOS, BeOS, Unix] Restore SUID/SGID/Tacky file attributes.",
@@ -2173,6 +2266,8 @@ static void help_extended(__G)
   "  -N   [Amiga] Extract file comments as Amiga filenotes.",
   "  -o   Overwrite existing files without prompting.  Useful with -f.  Use with",
   "         care.",
+  "  -O CHARSET  [UNIX] Specify a character encoding for DOS, Windows",
+  "                and OS/2 archives.",
   "  -P p Use password p to decrypt files.  THIS IS INSECURE!  Some OS show",
   "         command line to other users.",
   "  -q   Perform operations quietly.  The more q (as in -qq) the quieter.",
@@ -2265,6 +2360,9 @@ static void help_extended(__G)
   "        representing the Unicode character number of the character in hex.",
   "  -UU [UNICODE]  Disable use of any UTF-8 path information.",
   "  -z  Include archive comment if any in listing.",
+  "  -O CHARSET  [UNIX] Specify a character encoding for DOS, Windows",
+  "                and OS/2 archives.",
+  "  -I CHARSET  [UNIX] Specify a character encoding for UNIX and other archives.",
   "",
   "",
   "funzip stream extractor:",
