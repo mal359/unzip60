@@ -311,6 +311,14 @@
 #endif
 
 /*---------------------------------------------------------------------------
+    Haiku section:
+  ---------------------------------------------------------------------------*/
+
+#ifdef __HAIKU__
+#  include <sys/stat.h>
+#endif
+
+/*---------------------------------------------------------------------------
     Human68k/X680x0 section:
   ---------------------------------------------------------------------------*/
 
@@ -749,7 +757,7 @@
 #  define DOS_T20_VMS
 #endif
 
-#if (defined(__ATHEOS__) || defined(__BEOS__))
+#if (defined(__ATHEOS__) || defined(__BEOS__) || defined(__HAIKU__)) 
 #  define ATH_BEO
 #endif
 
@@ -2767,7 +2775,7 @@ char    *GetLoadPath     OF((__GPRO));                              /* local */
    /* This macro defines the Zip "made by" hosts that are considered
       to support storing symbolic link entries. */
 #  define SYMLINK_HOST(hn) ((hn) == UNIX_ || (hn) == ATARI_ || \
-      (hn) == ATHEOS_ || (hn) == BEOS_ || (hn) == VMS_)
+      (hn) == ATHEOS_ || (hn) == BEOS_ || (hn) == VMS_ || (hn) == HAIKU_)
 #endif
 
 #ifndef TEST_NTSD               /* "NTSD valid?" checking function */

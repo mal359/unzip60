@@ -63,9 +63,8 @@ FL = -o funzip$E $(LFLAGS1)
 FL2 = $(LF2)
 
 # general-purpose stuff
-#CP = cp
-CP = ln
-LN = ln
+CP = cp
+LN = ln -s 
 RM = rm -f
 CHMOD = chmod
 BINPERMS = 755
@@ -121,7 +120,7 @@ INSTALL_PROGRAM = $(INSTALL)
 INSTALL_D = mkdir -p
 # on some systems, manext=l and MANDIR=/usr/man/man$(manext) may be appropriate
 manext = 1
-prefix = /usr/local
+prefix = $(PREFIX)
 BINDIR = $(prefix)/bin#			where to install executables
 MANDIR = $(prefix)/man/man$(manext)#	where to install man pages
 INSTALLEDBIN = $(BINDIR)/funzip$E $(BINDIR)/unzip$E $(BINDIR)/unzipsfx$E \
@@ -144,7 +143,7 @@ SYSTEMG1 = generic generic_gcc  generic_pkg generic_gccpkg
 SYSTEMG2 = generic1 generic2 generic3 generic_bz2 generic_zlib generic_shlib
 SYSTEMS1 = 386i 3Bx 7300 7300_gcc aix aix_rt amdahl amdahl_eft apollo aviion
 SYSTEMS2 = bsd bsdi bsdi_noasm bull coherent convex cray cray_opt cyber_sgi
-SYSTEMS3 = cygwin dec dnix encore eta freebsd gcc gould hk68 hp hpux
+SYSTEMS3 = cygwin dec dnix encore eta freebsd gcc gould haiku hk68 hp hpux
 SYSTEMS4 = isc isc_gcc isi linux linux_dos linux_noasm linux_shlib linux_shlibz
 SYSTEMS5 = lynx macosx macosx_gcc minix mips mpeix next next10 next2x next3x
 SYSTEMS6 = nextfat osf1 pixel ptx pyramid qnxnto realix regulus rs6000 sco
@@ -781,6 +780,13 @@ freebsd:		unix_make
 gcc:		unix_make
 	$(MAKE) unzips CC=gcc LD=gcc CFLAGS="-O3" LF2=""
 	$(STRIP) $(UNZIPS)
+
+# Haiku:
+haiku:		unix_make
+	$(MAKE) unzips \
+	CC="cc" CFLAGS=" -O3 -DLARGE_FILE_SUPPORT -DUNICODE_SUPPORT -DUNICODE_WCHAR -DUNICODE_SUPPORT -DUTF8_MAYBE_NATIVE -DNO_LCHMOD -DHAVE_DIRENT_H -DHAVE_TERMIOS_H -D_MBCS -DNO_SYSDIR" \
+	CRCA_O="" AS="cc -c" LFLAGS1="-lbe" LF2="-s" CC_BZ="cc" CFLAGS_BZ=" -O3" \
+	IZ_BZIP2="." D_USE_BZ2="" L_BZ2="" LIBBZ2=""
 
 # Heurikon HK68 (68010), UniPlus+ System V 5.0, Green Hills C-68000
 hk68:		unix_make
