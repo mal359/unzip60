@@ -389,9 +389,9 @@ int list_files(__G)    /* return PK-type error code */
             }
 #else /* !WINDLL */
             if (cfactor == 100)
-                sprintf(cfactorstr, LoadFarString(CompFactor100));
+                snprintf(cfactorstr, sizeof(cfactorstr), LoadFarString(CompFactor100));
             else
-                sprintf(cfactorstr, LoadFarString(CompFactorStr), sgn, cfactor);
+                snprintf(cfactorstr, sizeof(cfactorstr), LoadFarString(CompFactorStr), sgn, cfactor);
             if (longhdr)
                 Info(slide, 0, ((char *)slide, LoadFarString(LongHdrStats),
                   FmZofft(G.crec.ucsize, "8", "u"), methbuf,
@@ -471,9 +471,9 @@ int list_files(__G)    /* return PK-type error code */
 
 #else /* !WINDLL */
         if (cfactor == 100)
-            sprintf(cfactorstr, LoadFarString(CompFactor100));
+            snprintf(cfactorstr, sizeof(cfactorstr), LoadFarString(CompFactor100));
         else
-            sprintf(cfactorstr, LoadFarString(CompFactorStr), sgn, cfactor);
+            snprintf(cfactorstr, sizeof(cfactorstr), LoadFarString(CompFactorStr), sgn, cfactor);
         if (longhdr) {
             Info(slide, 0, ((char *)slide, LoadFarString(LongFileTrailer),
               FmZofft(tot_ucsize, "8", "u"), FmZofft(tot_csize, "8", "u"),
