@@ -174,7 +174,7 @@ OBJF  = $(OBJF1) $(OBJF2) $(OBJFS)
 OBJD1 = api.obj crc32l.obj $(CRCA_OL) cryptl.obj explodel.obj
 OBJD2 = extractl.obj fileiol.obj globalsl.obj inflatel.obj
 OBJD3 = listl.obj matchl.obj processl.obj
-OBJD4 = ubz2errl.obj unreducl.obj unshrnkl.obj zipinfol.obj
+OBJD4 = ubz2errl.obj unreducl.obj expandl.obj unshrnkl.obj zipinfol.obj
 OBJDS = win32l.obj win32i64l.obj ntl.obj windll.obj $(TIMEZONE_OBJD)
 OBJD  = $(OBJD1) $(OBJD2) $(OBJD3) $(OBJD4) $(OBJDS)
 OBLX1 = apig.obj crc32g.obj $(CRCA_OG) cryptg.obj
@@ -186,7 +186,7 @@ OBGX  = sfxwiz.obj
 OBJB1 = $(OB)apib.obj $(OB)crc32b.obj $(CRCA_OB) $(OB)cryptb.obj
 OBJB2 = $(OB)explodeb.obj $(OB)extractb.obj $(OB)fileiob.obj $(OB)globalsb.obj
 OBJB3 = $(OB)inflateb.obj $(OB)listb.obj $(OB)matchb.obj $(OB)processb.obj
-OBJB4 = $(OB)ubz2errb.obj $(OB)unreducb.obj $(OB)unshrnkb.obj $(OB)zipinfob.obj
+OBJB4 = $(OB)ubz2errb.obj $(OB)unreducb.obj $(OB)expandb.obj $(OB)unshrnkb.obj $(OB)zipinfob.obj
 OBJBS = $(OB)win32b.obj $(OB)win32i64b.obj $(OB)ntb.obj $(OB)windllb.obj $(TIMEZONE_OBJB)
 OBJB  = $(OBJB1) $(OBJB2) $(OBJB3) $(OBJB4) $(OBJBS)
 
@@ -220,6 +220,17 @@ LOCAL_UNZIP = -DUSE_ZLIB $(LOCAL_UNZIP)
 !endif
 !ifdef USEBZ2
 LOCAL_UNZIP = -DUSE_BZIP2 $(LOCAL_UNZIP)
+!endif
+
+#Prefer free software
+!ifdef UNREDUCE
+!undef SMITH
+LOCAL_UNZIP = -DUSE_UNREDUCE_PUBLIC $(LOCAL_UNZIP)
+!endif
+!ifdef SMITH
+!ifndef UNREDUCE
+LOCAL_UNZIP = -DUSE_UNREDUCE_SMITH $(LOCAL_UNZIP)
+!endif
 !endif
 
 #CF_LOC = -nologo -J -D_MBCS $(CFVARS_ASM) -DREENTRANT
@@ -481,7 +492,12 @@ process.obj:	process.c $(UNZIP_H) crc32.h
 timezone.obj:	timezone.c $(UNZIP_H) zip.h timezone.h
 ttyio.obj:	ttyio.c $(UNZIP_H) zip.h crypt.h ttyio.h
 ubz2err.obj:	ubz2err.c $(UNZIP_H)
+!ifdef SMITH
 unreduce.obj:	unreduce.c $(UNZIP_H)
+!else
+!ifdef UNREDUCE
+expand.obj:	expand.c $(UNZIP_H)
+!endif 
 unshrink.obj:	unshrink.c $(UNZIP_H)
 unzip.obj:	unzip.c $(UNZIP_H) crypt.h unzvers.h consts.h
 zipinfo.obj:	zipinfo.c $(UNZIP_H)
@@ -588,8 +604,14 @@ timezonl.obj:	timezone.c $(UNZIP_H) zip.h timezone.h
 	$(cc) $(CFLAGS_DL) timezone.c -Fo$@
 ubz2errl.obj:	ubz2err.c $(UNZIP_H)
 	$(cc) $(CFLAGS_DL) ubz2err.c -Fo$@
-unreducl.obj:	unreduce.c $(UNZIP_H)
-	$(cc) $(CFLAGS_DL) unreduce.c -Fo$@
+!ifdef SMITH
+$(OB)unreducl.obj:	unreduce.c $(UNZIP_H)
+	$(cc) $(CFLAGS_LB) unreduce.c -Fo$@
+!else
+!ifdef UNREDUCE
+$(OB)expandl.obj:	unreduce.c $(UNZIP_H)
+	$(cc) $(CFLAGS_LB) unreduce.c -Fo$@
+!endif 
 unshrnkl.obj:	unshrink.c $(UNZIP_H)
 	$(cc) $(CFLAGS_DL) unshrink.c -Fo$@
 zipinfol.obj:	zipinfo.c $(UNZIP_H)
@@ -711,8 +733,14 @@ $(OB)timezonb.obj:	timezone.c $(UNZIP_H) zip.h timezone.h
 	$(cc) $(CFLAGS_LB) timezone.c -Fo$@
 $(OB)ubz2errb.obj:	ubz2err.c $(UNZIP_H)
 	$(cc) $(CFLAGS_LB) ubz2err.c -Fo$@
+!ifdef SMITH
 $(OB)unreducb.obj:	unreduce.c $(UNZIP_H)
 	$(cc) $(CFLAGS_LB) unreduce.c -Fo$@
+!else
+!ifdef UNREDUCE
+$(OB)expandb.obj:	unreduce.c $(UNZIP_H)
+	$(cc) $(CFLAGS_LB) unreduce.c -Fo$@
+!endif 
 $(OB)unshrnkb.obj:	unshrink.c $(UNZIP_H)
 	$(cc) $(CFLAGS_LB) unshrink.c -Fo$@
 $(OB)zipinfob.obj:	zipinfo.c $(UNZIP_H)

@@ -94,8 +94,17 @@ TIMEZONE_OBLX =
 TIMEZONE_OBJB =
 !endif
 
+
+!if $(REDUCE)
+UNREDUCE = -DUSE_UNREDUCE_PUBLIC
+!else
+UNREDUCE =
+!endif
+
 !if $(UNCLEAN)
-DIRT = -DUSE_SMITH_CODE -DUSE_UNSHRINK
+!ifndef REDUCE
+DIRT = -DUSE_UNREDUCE_SMITH
+!endif
 !else
 DIRT =
 !endif
@@ -122,7 +131,7 @@ ASCPUFLAG = __$(CPU_TYP)86
 CC_CPUFLG = -$(CPU_TYP)
 !endif
 ASFLAGS = -ml -m2 -w0 -D$(ASCPUFLAG) $(LOC)
-CFLAGS = $(CC_WARN) $(CC_CPUFLG) -d -ff- -k- -P-.C -I. $(ASMFLG) $(LOC) $(DIRT)
+CFLAGS = $(CC_WARN) $(CC_CPUFLG) -d -ff- -k- -P-.C -I. $(ASMFLG) $(LOC) $(UNREDUCE) $(DIRT)
 LDFLAGS = # -lxncd -l-P		# for bcc
 LDFLAGS_DLL = $(LDFLAGS) -tWD
 LDFLAGS_GUI = $(LDFLAGS) -tW

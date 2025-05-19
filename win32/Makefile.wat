@@ -41,9 +41,22 @@ avars = $+$(avars)$- -DLZW_CLEAN
 # "$+$(foo)$-" means expand foo as it has been defined up to now; normally,
 # this Make defers inner expansion until the outer macro is expanded.
 !endif
+
 !ifdef OFFEND_RMS
-cvars = $+$(cvars)$- -DUSE_SMITH_CODE
-avars = $+$(avars)$- -DUSE_SMITH_CODE
+cvars = $+$(cvars)$- -DUSE_UNREDUCE_SMITH
+avars = $+$(avars)$- -DUSE_UNREDUCE_SMITH
+!endif
+
+# Prefer free software
+!ifdef FREE_UNREDUCE
+cvars = $+$(cvars)$- -DUSE_UNREDUCE_PUBLIC
+avars = $+$(avars)$- -DUSE_UNREDUCE_PUBLIC
+!endif
+
+!ifdef OFFEND_RMS
+!ifndef FREE_UNREDUCE
+cvars = $+$(cvars)$- -DUSE_UNREDUCE_PUBLIC
+avars = $+$(avars)$- -DUSE_UNREDUCE_PUBLIC
 !endif
 
 IZ_BZIP2 = bzip2
