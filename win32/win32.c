@@ -490,6 +490,9 @@ int test_NTSD(__G__ eb, eb_size, eb_ucptr, eb_ucsize)
 
 int IsWinNT(void)       /* returns TRUE if real NT, FALSE if Win9x or Win32s */
 {
+#if defined(WINAPI) && (WINVER >= 0x0603) /* Win8.1 deprecation */
+    return TRUE;
+# else
     static DWORD g_PlatformId = 0xFFFFFFFF; /* saved platform indicator */
 
     if (g_PlatformId == 0xFFFFFFFF) {
@@ -500,6 +503,7 @@ int IsWinNT(void)       /* returns TRUE if real NT, FALSE if Win9x or Win32s */
             g_PlatformId = FALSE;
     }
     return (int)g_PlatformId;
+#endif
 }
 
 
