@@ -2537,7 +2537,8 @@ void version(__G)
     __GDEF
 {
     int len;
-#if (defined(_MSC_VER) || defined(__WATCOMC__) || defined(__DJGPP__))
+#if (defined(_MSC_VER) || defined(__WATCOMC__) || defined(__DJGPP__) \
+    || defined(__POCC__))
     char buf[80];
 #if (defined(_MSC_VER) && (_MSC_VER > 900))
     char buf2[80];
@@ -2555,8 +2556,8 @@ void version(__G)
 #  elif (_MSC_VER == 900)
       "(Visual C++ v2.x)",
 #  elif (900 < _MSC_VER && _MSC_VER <= 1800)
-      (sprintf(buf2, "(Visual C++ v%d.%d)", _MSC_VER/100 - 6, _MSC_VER%100 / 10),
-        buf2),
+      (sprintf(buf2, "(Visual C++ v%d.%d)", _MSC_VER/100 - 6, 
+        _MSC_VER%100 / 10), buf2),
 #  elif (_MSC_VER == 1900)
       "(Visual C++ v14.0)",
 #  elif (_MSC_VER == 1910)
@@ -2564,11 +2565,11 @@ void version(__G)
 #  elif (_MSC_VER == 1911)
       "(Visual C++ v15.3)",
 #  elif (1912 <= _MSC_VER && _MSC_VER < 1920)
-      (sprintf(buf2, "(Visual C++ v%d.%d)", _MSC_VER/100 - 4, _MSC_VER%100 - 7),
-        buf2),
+      (sprintf(buf2, "(Visual C++ v%d.%d)", _MSC_VER/100 - 4,
+        _MSC_VER%100 - 7), buf2),
 #  elif (1920 <= _MSC_VER && _MSC_VER < 1927)
-      (sprintf(buf2, "(Visual C++ v%d.%d)", _MSC_VER/100 - 3, _MSC_VER%100 - 20),
-        buf2),
+      (sprintf(buf2, "(Visual C++ v%d.%d)", _MSC_VER/100 - 3, 
+        _MSC_VER%100 - 20), buf2),
 #  elif (192829333 <= _MSC_FULL_VER && _MSC_FULL_VER < 192829910)
       "(Visual C++ v16.8)",
 #  elif (192829910 <= _MSC_FULL_VER && _MSC_FULL_VER < 192929917)
@@ -2578,18 +2579,18 @@ void version(__G)
 #  elif (192930129 <= _MSC_FULL_VER && _MSC_FULL_VER < 193000000)
       "(Visual C++ v16.11)",
 #  elif (_MSC_VER >= 1930)
-	  (sprintf(buf2, "(Visual C++ v%d.%d)", _MSC_VER/100 - 2, _MSC_VER%100 - 30),
-        buf2),
+	  (sprintf(buf2, "(Visual C++ v%d.%d)", _MSC_VER/100 - 2, 
+        _MSC_VER%100 - 30), buf2),
 #  else
       "(bad version)",
 #  endif
 #elif defined(__WATCOMC__)
 #  if(__WATCOMC__ >= 1200)
-      (sprintf(buf, "Open Watcom C/C++ %d.%d", (__WATCOMC__ / 100) -11 ,
-       (__WATCOMC__ % 100) / 10), buf), "",
+      (sprintf(buf, "Open Watcom C/C++ %d.%d", (__WATCOMC__ / 100) - 11,
+        (__WATCOMC__ % 100) / 10), buf), "",
 #  else
       (sprintf(buf, "Watcom C/C++ %d.%d", __WATCOMC__ / 100,
-       __WATCOMC__ % 100, buf), "",
+        __WATCOMC__ % 100, buf), "",
 #  endif
 /* This is disgusting */
 #elif defined(__BORLANDC__)
@@ -2701,15 +2702,25 @@ void version(__G)
 #    else
       "rsxnt(unknown) / gcc ",
 #    endif
+#  elif defined(__clang__)
+      "LLVM/clang ",
 #  elif defined(__CYGWIN__)
       "cygnus win32 / gcc ",
 #  elif defined(__MINGW32__)
+#    if defined(__MINGW64__)
+      "mingw-w64 / gcc ",
+#    else
       "mingw32 / gcc ",
+#    endif
 #  else
       "gcc ",
 #  endif
       __VERSION__,
-#else /* !_MSC_VER, !__WATCOMC__, !__BORLANDC__, !__LCC__, !__GNUC__ */
+#elif defined(__POCC__)
+      (sprintf(buf, "Pelles C %d.%d", __POCC__/100, __POCC__%100, buf), "",
+#elif defined(__ORANGEC__)
+	  "Orange C ", __VERSION__,
+#else
       "unknown compiler (SDK?)", "",
 #endif /* ?compilers */
 #ifdef _WIN64
@@ -2718,7 +2729,7 @@ void version(__G)
 #  elif defined _aarch64_
       "\nWindows NT", " (ARM 64-bit)",
 #  else /* _AMD64_ */
-      "\nWindows NT", " (Intel 64-bit)",
+      "\nWindows NT", " (x64)",
 #  endif
 #else
 #  ifdef _MIPS_

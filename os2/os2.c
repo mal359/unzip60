@@ -2203,7 +2203,13 @@ void version(__G)
       (sprintf(buf, "Visual Age C++ %d.%02d", __IBMC__/100,__IBMC__%100), buf),
 #  endif
 #elif defined(__WATCOMC__)
-      "Watcom C", (sprintf(buf, " (__WATCOMC__ = %d)", __WATCOMC__), buf),
+#  if (__WATCOMC__ >= 1200)
+      "Open Watcom C/C++", (sprintf(buf, "  %d.%d",(__WATCOMC__/100) - 11, 
+        (__WATCOMC__ % 100) / 10), buf),
+#  else
+      "Watcom C/C++", (sprintf(buf, "  %d.%d", __WATCOMC__/100, 
+         __WATCOMC__ % 100), buf),
+#  endif
 #elif defined(__TURBOC__)
 #  ifdef __BORLANDC__
       "Borland C++",

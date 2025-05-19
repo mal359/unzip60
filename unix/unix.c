@@ -1547,6 +1547,10 @@ void version(__G)
 #else
 #if (defined(CRAY) && defined(_RELEASE))
     char cc_versbuf[40];
+#else
+#if defined(__WATCOMC__)
+    char buf[80];
+#endif /* __WATCOMC__ */
 #endif /* (CRAY && _RELEASE) */
 #endif /* __DECC_VER */
 #endif /* __HP_cc || __IBMC__ */
@@ -1571,6 +1575,8 @@ void version(__G)
        cc_namebuf),
       (strlen(__VERSION__) > 8)? "(gcc)" :
         (sprintf(cc_versbuf, "(gcc %s)", __VERSION__), cc_versbuf),
+#  elif defined(__clang__)
+      "LLVM/clang ", __clang_version__,
 #  else
       "gcc ", __VERSION__,
 #  endif
@@ -1605,6 +1611,10 @@ void version(__G)
                (__IBMC__ / 100), ((__IBMC__ / 10) % 10), (__IBMC__ % 10)),
                cc_versbuf),
 #else
+#if defined(__WATCOMC__)
+      "Open Watcom C/C++", (sprintf(buf, " %d.%d", (__WATCOMC__/100) - 11,
+                               (__WATCOMC__ % 100) / 10), buf),
+#else
 #ifdef __VERSION__
 #   ifndef IZ_CC_NAME
 #    define IZ_CC_NAME "cc "
@@ -1616,6 +1626,7 @@ void version(__G)
 #   endif
       IZ_CC_NAME, "",
 #endif /* ?__VERSION__ */
+#endif /* ?__WATCOMC__ */
 #endif /* ?__IBMC__ */
 #endif /* ?(CRAY && _RELEASE) */
 #endif /* ?__DECC_VER */
@@ -1634,13 +1645,28 @@ void version(__G)
 #ifdef sun
 #  ifdef sparc
 #    ifdef __SVR4
-      " (Sun SPARC/Solaris)",
+#     ifdef __illumos__
+      " (illumos/SPARC)",
+#     else
+      " (Solaris/SPARC)",
+#     endif
 #    else /* may or may not be SunOS */
       " (Sun SPARC)",
 #    endif
 #  else
+#  if defined(__amd64__) || defined(__x86_64__)
+#    ifdef __illumos__
+      " (illumos/x86–64)",
+#    else
+      " (Solaris/x86–64)",
+#    endif
+#  else
 #  if defined(sun386) || defined(i386)
+#    ifdef __SVR4
+      " (Solaris/Intel)",
+#    else
       " (Sun 386i)",
+#    endif
 #  else
 #  if defined(mc68020) || defined(__mc68020__)
       " (Sun 3)",
@@ -1651,10 +1677,14 @@ void version(__G)
 #  endif
 #else
 #ifdef __hpux
+#  ifdef __ia64
+      " (HP-UX on Itanium)",
+#  else	  
       " (HP-UX)",
+#  endif
 #else
 #ifdef __osf__
-      " (DEC OSF/1)",
+      " (OSF/1)",
 #else
 #ifdef _AIX
       " (IBM AIX)",
@@ -1674,9 +1704,17 @@ void version(__G)
 #else
 #ifdef NeXT
 #  ifdef mc68000
-      " (NeXTStep/black)",
+      " (NEXTSTEP/black)",
+#  elif defined(hppa)
+      " (NEXTSTEP/green)",
+#  elif defined(sparc)
+      " (NEXTSTEP/yellow)",
+#  elif defined(i386)
+      " (NEXTSTEP/white)",
+#  elif defined(ppc)
+      " (Apple Rhapsody/PowerPC)",
 #  else
-      " (NeXTStep for Intel)",
+      " (OpenStep)",
 #  endif
 #else              /* the next dozen or so are somewhat order-dependent */
 #ifdef LINUX
@@ -1689,8 +1727,11 @@ void version(__G)
 #ifdef MINIX
       " (Minix)",
 #else
+#if defined(SVR5) || defined(UNIXWARE7)
+      " (SCO UnixWare 7)",
+#else
 #ifdef M_UNIX
-      " (SCO Unix)",
+      " (SCO UNIX)",
 #else
 #ifdef M_XENIX
       " (SCO Xenix)",
@@ -1736,11 +1777,11 @@ void version(__G)
 #else
 #ifdef ultrix
 #  ifdef mips
-      " (DEC/MIPS)",
+      " (DEC ULTRIX/MIPS)",
 #  else
 #  ifdef vax
-      " (DEC/VAX)",
-#  else /* __alpha? */
+      " (DEC ULTRIX/VAX)",
+#  else /* __alpha? ...this never happened, MAL 5/18/2025 */
       " (DEC/Alpha)",
 #  endif
 #  endif
@@ -1766,17 +1807,13 @@ void version(__G)
 #ifdef __APPLE__
 #  ifdef __aarch64__
       " (macOS Apple Silicon)",
-#  else
-#  ifdef __x86_64__
-      " (macOS Intel 64-bit)",
-#  else
-#  ifdef __i386__
-      " (Mac OS X Intel i32)",
-#  else
-#  ifdef __ppc__
+#  elif defined(__x86_64__)
+      " (macOS x86-64)",
+#  elif defined(__i386__)
+      " (Mac OS X Intel)",
+#  elif defined(__ppc__)
       " (Mac OS X PowerPC)",
-#  else
-#  ifdef __ppc64__
+#  elif defined(__ppc64__)
       " (Mac OS X PowerPC64)",
 #  else
       " (A sour Apple)",
@@ -1790,6 +1827,7 @@ void version(__G)
       " (Haiku)",
 #else
       "",
+#endif /* Haiku */
 #endif /* Apple */
 #endif /* Lynx */
 #endif /* QNX Neutrino */
@@ -1813,6 +1851,7 @@ void version(__G)
 #endif /* NetBSD */
 #endif /* SCO Xenix */
 #endif /* SCO Unix */
+#endif /* SCO UnixWare 7 */
 #endif /* Minix */
 #endif /* Linux */
 #endif /* NeXT */

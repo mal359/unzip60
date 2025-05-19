@@ -1866,13 +1866,15 @@ void version(__G)
       "gcc ",
 #  endif
       __VERSION__,
+#elif defined(__ORANGEC__)
+	  "Orange C ", __VERSION__,
 #elif defined(__WATCOMC__)
-#  if (__WATCOMC__ % 10 != 0)
-      "Watcom C/C++", (sprintf(buf, " %d.%02d", __WATCOMC__ / 100,
-                               __WATCOMC__ % 100), buf),
+#  if (__WATCOMC__ >= 1200)
+      "Open Watcom C/C++", (sprintf(buf, " %d.%d", (__WATCOMC__/100) - 11,
+                               (__WATCOMC__ % 100) / 10), buf),
 #  else
       "Watcom C/C++", (sprintf(buf, " %d.%d", __WATCOMC__ / 100,
-                               (__WATCOMC__ % 100) / 10), buf),
+                               __WATCOMC__ % 100), buf),
 #  endif
 #elif defined(__TURBOC__)
 #  ifdef __BORLANDC__
@@ -1891,8 +1893,10 @@ void version(__G)
         " 4.5",
 #    elif (__BORLANDC__ == 0x0500)
         " 5.0",
+#    elif (__BORLANDC__ == 0x0520)
+        " 5.2",
 #    else
-        " later than 5.0",
+        " later than 5.2 (for DOS? likely story...)",
 #    endif
 #  else
       "Turbo C",
@@ -1939,7 +1943,7 @@ void version(__G)
 
       "\nMS-DOS",
 
-#if (defined(__GNUC__) || defined(WATCOMC_386))
+#if (defined(__GNUC__) || defined(WATCOMC_386) || defined(__ORANGEC__))
       " (32-bit)",
 #else
 #  if defined(M_I86HM) || defined(__HUGE__)
