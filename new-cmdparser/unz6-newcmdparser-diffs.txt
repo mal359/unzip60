@@ -1731,7 +1731,9 @@ diff -ru2 unz60e03/unzip.c u6e3_np/unzip.c
 +static ZCONST char Far long_op_not_sup_err[] =
 +   "long option '%s' not supported";
 +
++#if 0
 +static ZCONST char Far no_arg_files_err[] = "argument files not enabled\n";
++#endif
 +
 +
 +/* below removed as only used for processing argument files */

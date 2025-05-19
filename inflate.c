@@ -1006,8 +1006,8 @@ unsigned bl, bd;        /* number of bits decoded by tl[] and td[] */
 
 
   /* inflate the coded data */
-  ml = mask_bits[bl];           /* precompute masks for speed */
-  md = mask_bits[bd];
+  ml = mask_bits[bl % 17];           /* precompute masks for speed */
+  md = mask_bits[bd % 17];
   while (1)                     /* do until end of block */
   {
     NEEDBITS(bl)
@@ -1030,7 +1030,7 @@ unsigned bl, bd;        /* number of bits decoded by tl[] and td[] */
       {
         /* get length of block to copy */
         NEEDBITS(e)
-        n = t->v.n + ((unsigned)b & mask_bits[e]);
+        n = t->v.n + ((unsigned)b & mask_bits[e % 17]);
         DUMPBITS(e)
 
         /* decode distance of block to copy */
@@ -1044,10 +1044,10 @@ unsigned bl, bd;        /* number of bits decoded by tl[] and td[] */
             return 1;
           e &= 31;
           NEEDBITS(e)
-          t = t->v.t + ((unsigned)b & mask_bits[e]);
+          t = t->v.t + ((unsigned)b & mask_bits[e % 17]);
         }
         NEEDBITS(e)
-        d = (unsigned)w - t->v.n - ((unsigned)b & mask_bits[e]);
+        d = (unsigned)w - t->v.n - ((unsigned)b & mask_bits[e % 17]);
         DUMPBITS(e)
 
         /* do the copy */
@@ -1099,7 +1099,7 @@ unsigned bl, bd;        /* number of bits decoded by tl[] and td[] */
 
       e &= 31;
       NEEDBITS(e)
-      t = t->v.t + ((unsigned)b & mask_bits[e]);
+      t = t->v.t + ((unsigned)b & mask_bits[e % 17]);
     }
   }
 cleanup_decode:
@@ -1313,7 +1313,7 @@ static int inflate_dynamic(__G)
 
   /* read in literal and distance code lengths */
   n = nl + nd;
-  m = mask_bits[bl];
+  m = mask_bits[bl % 17];
   i = l = 0;
   while (i < n)
   {

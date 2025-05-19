@@ -2809,6 +2809,9 @@ char    *GetLoadPath     OF((__GPRO));                              /* local */
 #define SKIP_(length) if(length&&((error=do_string(__G__ length,SKIP))!=0))\
   {error_in_archive=error; if(error>1) return error;}
 
+#define SKIP_FREE_(length) if(length&&((error=do_string(__G__ length,SKIP))!=0))\
+  {error_in_archive=error; if(error>1) {free(fn_matched); free(xn_matched); return\
+  error;}}
 /*
  *  Skip a variable-length field, and report any errors.  Used in zipinfo.c
  *  and unzip.c in several functions.
@@ -2822,7 +2825,7 @@ char    *GetLoadPath     OF((__GPRO));                              /* local */
  *              return (error);
  *      }
  *  }
- *
+ * SKIP_FREE also frees possibly lost pointers
  */
 
 

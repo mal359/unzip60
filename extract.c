@@ -1122,14 +1122,24 @@ static int store_info(__G)   /* return 0 if skipping, 1 if OK */
         }
         return 0;
     }
-#if (!CRYPT)
+#if CRYPT
+    if (!G.pInfo->encrypted) {
+        if (uO.pwdarg != (char *)NULL) {
+            if (!((uO.tflag && uO.qflag) || (!uO.tflag && !QCOND2))) {
+                Info(slide, 0x401, ((char *)slide, LoadFarString(SkipIncorrectPasswd),
+                  FnFilter1(G.filename)));
+            }
+            return 0;
+        }
+    }
+#else
     if (G.pInfo->encrypted) {
         if (!((uO.tflag && uO.qflag) || (!uO.tflag && !QCOND2)))
             Info(slide, 0x401, ((char *)slide, LoadFarString(SkipEncrypted),
               FnFilter1(G.filename)));
         return 0;
     }
-#endif /* !CRYPT */
+#endif /* CRYPT */
 
 #ifndef SFX
     /* store a copy of the central header filename for later comparison */

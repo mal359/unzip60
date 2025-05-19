@@ -914,7 +914,7 @@ int zipinfo(__G)   /* return PK-type error code */
                 case 1:
                 case 2:
                     fnprint(__G);
-                    SKIP_(G.crec.file_comment_length)
+                    SKIP_FREE_(G.crec.file_comment_length)
                     break;
 
                 case 3:
@@ -935,7 +935,7 @@ int zipinfo(__G)   /* return PK-type error code */
                     break;
 
                 default:
-                    SKIP_(G.crec.file_comment_length)
+                    SKIP_FREE_(G.crec.file_comment_length)
                     break;
 
             } /* end switch (lflag) */
@@ -962,8 +962,8 @@ int zipinfo(__G)   /* return PK-type error code */
 #endif
 
         } else {        /* not listing this file */
-            SKIP_(G.crec.extra_field_length)
-            SKIP_(G.crec.file_comment_length)
+            SKIP_FREE_(G.crec.extra_field_length)
+            SKIP_FREE_(G.crec.file_comment_length)
             if (endprev != 0) endprev = 0;
 
         } /* end if (list member?) */
@@ -1948,7 +1948,7 @@ static int zi_short(__G)   /* return PK-type error code */
 #endif
     int         k, error, error_in_archive=PK_COOL;
     unsigned    hostnum, hostver, methid, methnum, xattr;
-    char        *p, workspace[12], attribs[17];
+    char        *p, workspace[12], attribs[22];
     char        methbuf[5];
     static ZCONST char dtype[5]="NXFS"; /* normal, maximum, fast, superfast */
     static ZCONST char Far os[NUM_HOSTS+1][4] = {

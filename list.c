@@ -405,10 +405,12 @@ int list_files(__G)    /* return PK-type error code */
                   mo, dt_sepchar, dy, dt_sepchar, yr, hh, mm,
                   (G.pInfo->lcflag? '^':' ')));
 #else
-                Info(slide, 0, ((char *)slide, LoadFarString(ShortHdrStats),
-                  FmZofft(G.crec.ucsize, "9", "u"),
-                  mo, dt_sepchar, dy, dt_sepchar, yr, hh, mm,
-                  (G.pInfo->lcflag? '^':' ')));
+				if (uO.qflag <= 2) {
+					Info(slide, 0, ((char *)slide, LoadFarString(ShortHdrStats),
+					  FmZofft(G.crec.ucsize, "9", "u"),
+					  mo, dt_sepchar, dy, dt_sepchar, yr, hh, mm,
+					  (G.pInfo->lcflag? '^':' ')));
+				}
 #endif
             fnprint(__G);
 #endif /* ?WINDLL */

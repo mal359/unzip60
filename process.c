@@ -2526,6 +2526,7 @@ char *wide_to_local_string(wide_string, escape_all)
   char *local_string = NULL;
   size_t buffer_size;                   /* CVE-2022-0529 */
 
+  if (wide_string == NULL) return NULL;
   for (wsize = 0; wide_string[wsize]; wsize++) ;
 
   if (max_bytes < MAX_ESCAPE_BYTES)

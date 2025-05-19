@@ -337,6 +337,12 @@ char *do_wild(__G__ wildspec)
 #ifndef S_ISVTX
 # define S_ISVTX        0001000 /* save swapped text even after use */
 #endif
+#ifndef UNX_IWGRP
+# define UNX_IWGRP      00020   /* Unix write permission: group */
+#endif
+#ifndef UNX_IWOTH
+# define UNX_IWOTH      00002   /* Unix write permission: other */
+#endif
 
 /************************/
 /*  Function filtattr() */
@@ -354,6 +360,11 @@ static unsigned filtattr(__G__ perms)
     /* keep setuid/setgid/tacky perms? */
     if (!uO.K_flag)
         perms &= ~(S_ISUID | S_ISGID | S_ISVTX);
+
+    /* Clear IWGRP and IWOTH bits on file permissions. It's possible that a file
+     * in an archive could have one of these bits set and could allow others to
+     * overwrite or append to the file. */
+    perms &= ~(UNX_IWGRP | UNX_IWOTH);
 
     return (0xffff & perms);
 } /* end function filtattr() */
@@ -594,14 +605,7 @@ int mapname(__G__ renamed)
                 break;
 
 #ifdef __CYGWIN__   /* Cygwin runs on Win32, apply FAT/NTFS filename rules */
-            case ':':         /* drive spec not stored, so no colon allowed */
             case '\\':        /* '\\' may come as normal filename char (not */
-            case '<':         /*  dir sep char!) from unix-like file system */
-            case '>':         /* no redirection symbols allowed either */
-            case '|':         /* no pipe signs allowed */
-            case '"':         /* no double quotes allowed */
-            case '?':         /* no wildcards allowed */
-            case '*':
                 *pp++ = '_';  /* these rules apply equally to FAT and NTFS */
                 break;
 #endif
@@ -685,7 +689,10 @@ int mapname(__G__ renamed)
             }
 
             /* set approx. dir perms (make sure can still read/write in dir) */
-            if (chmod(G.filename, G.pInfo->file_attr | 0700))
+            /* clearing IWGRP and IWOTH bits so that these permissions are not
+             * accidentally allowed. */
+            if (chmod(G.filename, (G.pInfo->file_attr | 0700) & ~(UNX_IWGRP | 
+            	UNX_IWOTH)))
                 perror("chmod (directory attributes) error");
 #endif
             /* set dir time (note trailing '/') */
