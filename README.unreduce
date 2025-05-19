@@ -1,0 +1,23 @@
+This archive supplies the copyrighted source for the unreduce
+algorithm used in some early beta versions of PKZIP 2.0 and
+described in PKWARE's appnote.txt.
+
+As of UnZip 5.42, this source has been removed from Info-ZIP's
+UnZip source distribution because of its conflicting copyright.
+There are no plans to ever rewrite this code from scratch,
+because the unreduce algorithm was never used in the "real" world.
+
+If you really need an UnZip version with support for reduced archive
+entries, you have to compile a customized binary yourself:
+ - get the source file "unreduce_full.c" (supplied in the Zip
+   archive "unreduce_full.zip" together with this README file)
+ - rename "unreduce_full.c" to "unreduce.c" and paste it over the
+   crippled "unreduce.c" source file of the UnZip source distribution.
+ - compile a customized UnZip binary with the option USE_SMITH_CODE
+   enabled. In most supported environments, you may define the macro
+      LOCAL_UNZIP=-DUSE_SMITH_CODE
+   on the command line of the make command, or define an environment
+   variable LOCAL_UNZIP, containing the definition of the preprocessor
+   macro USE_SMITH_CODE.
+
+13-Jan-2001, Christian Spieler
